@@ -32,7 +32,7 @@ main (int argc, char* argv[])
         file = stdin;
     }
   vector<DeclarationNode*> declarations;
-	Parser p(file, false, declarations);
+	Parser p(file, declarations);
 	p.parse();
 
     return EXIT_SUCCESS;
