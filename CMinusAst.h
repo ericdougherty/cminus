@@ -126,32 +126,32 @@ public:
 class PrintVisitor : public IVisitor
 {
 public:
-  virtual void visit (ProgramNode* node);
-  
+  virtual void visit (ProgramNode* node);//Done
+
   virtual void visit (DeclarationNode* node){};
-  virtual void visit (FunctionDeclarationNode* node);
-  virtual void visit (VariableDeclarationNode* node);
+  virtual void visit (FunctionDeclarationNode* node); //Done
+  virtual void visit (VariableDeclarationNode* node); //Done
   virtual void visit (ArrayDeclarationNode* node){};
-  virtual void visit (ParameterNode* node);
+  virtual void visit (ParameterNode* node); //Done
 
-  virtual void visit (StatementNode* node){};
+  virtual void visit (StatementNode* node); //Eric done
   virtual void visit (CompoundStatementNode* node){};
-  virtual void visit (IfStatementNode* node){};
+  virtual void visit (IfStatementNode* node); //Eric done
   virtual void visit (WhileStatementNode* node){};
-  virtual void visit (ForStatementNode* node){};
+  virtual void visit (ForStatementNode* node); //Eric done
   virtual void visit (ReturnStatementNode* node){};
-  virtual void visit (ExpressionStatementNode* node){};
+  virtual void visit (ExpressionStatementNode* node); //Eric done
 
-  virtual void visit (ExpressionNode* node){};
-  virtual void visit (AssignmentExpressionNode* node){};
-  virtual void visit (VariableExpressionNode* node){};
-  virtual void visit (SubscriptExpressionNode* node){};
+  virtual void visit (ExpressionNode* node){}; //Done
+  virtual void visit (AssignmentExpressionNode* node); //Eric done
+  virtual void visit (VariableExpressionNode* node); //Done
+  virtual void visit (SubscriptExpressionNode* node); //Eric done
   virtual void visit (CallExpressionNode* node){};
-  virtual void visit (AdditiveExpressionNode* node){};
+  virtual void visit (AdditiveExpressionNode* node); //Eric done
   virtual void visit (MultiplicativeExpressionNode* node){};
-  virtual void visit (RelationalExpressionNode* node){};
+  virtual void visit (RelationalExpressionNode* node); //Eric done
   virtual void visit (UnaryExpressionNode* node){};
-  virtual void visit (IntegerLiteralExpressionNode* node){};
+  virtual void visit (IntegerLiteralExpressionNode* node); //Eric done
 
   void printLevel();
 
@@ -183,7 +183,7 @@ struct ProgramNode : Node
 
 struct DeclarationNode : Node
 {
-  DeclarationNode (ValueType t, string id); 
+  DeclarationNode (ValueType t, string id);
 
   ~DeclarationNode ();
 
@@ -201,7 +201,7 @@ struct DeclarationNode : Node
 struct FunctionDeclarationNode : DeclarationNode
 {
   FunctionDeclarationNode (ValueType t, string id,
-    vector<ParameterNode*> params); //, CompoundStatementNode* body);
+    vector<ParameterNode*> params, CompoundStatementNode* body);
 
   ~FunctionDeclarationNode ();
 
@@ -209,7 +209,7 @@ struct FunctionDeclarationNode : DeclarationNode
   accept (IVisitor* visitor);
 
   vector<ParameterNode*> parameters;
-//  CompoundStatementNode* functionBody;
+  CompoundStatementNode* functionBody;
 };
 
 struct VariableDeclarationNode : DeclarationNode
@@ -265,14 +265,14 @@ struct StatementNode : Node
 struct CompoundStatementNode : StatementNode
 {
   CompoundStatementNode (vector<VariableDeclarationNode*> decls,
-			 vector<StatementNode*> stmts);
+                         vector<StatementNode*> stmts);
 
   ~CompoundStatementNode ();
 
   void
   accept (IVisitor* visitor);
 
-  vector<VariableDeclarationNode*> localDeclarations;
+  vector<VariableDeclarationNode*> declarations;
   vector<StatementNode*> statements;
 };
 
@@ -280,7 +280,7 @@ struct IfStatementNode : StatementNode
 {
   IfStatementNode (ExpressionNode* expr,
                    StatementNode* thenStmt,
-                   StatementNode* elseStmt = nullptr);
+                   StatementNode* elseStmt);
 
   ~IfStatementNode ();
 
@@ -361,7 +361,7 @@ struct ExpressionNode : Node
 struct AssignmentExpressionNode : ExpressionNode
 {
   AssignmentExpressionNode (VariableExpressionNode* var,
-			    ExpressionNode* expr);
+                            ExpressionNode* expr);
 
   ~AssignmentExpressionNode ();
 
@@ -412,8 +412,8 @@ struct CallExpressionNode : ExpressionNode
 struct AdditiveExpressionNode : ExpressionNode
 {
   AdditiveExpressionNode (AdditiveOperatorType addop,
-			  ExpressionNode* lhs,
-			  ExpressionNode* rhs);
+                          ExpressionNode* lhs,
+                          ExpressionNode* rhs);
 
   ~AdditiveExpressionNode ();
 
@@ -444,8 +444,8 @@ struct MultiplicativeExpressionNode : ExpressionNode
 struct RelationalExpressionNode : ExpressionNode
 {
   RelationalExpressionNode (RelationalOperatorType relop,
-			    ExpressionNode* lhs,
-			    ExpressionNode* rhs);
+                            ExpressionNode* lhs,
+                            ExpressionNode* rhs);
 
   ~RelationalExpressionNode ();
 
@@ -461,7 +461,7 @@ struct RelationalExpressionNode : ExpressionNode
 struct UnaryExpressionNode : ExpressionNode
 {
   UnaryExpressionNode (UnaryOperatorType unaryOp,
-		       VariableExpressionNode* var);
+                       VariableExpressionNode* var);
 
   ~UnaryExpressionNode ();
 

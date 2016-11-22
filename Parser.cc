@@ -27,18 +27,16 @@ using std::string;
 // Function prototypes/global vars/typedefs
 
 Parser::Parser (FILE* file, bool debug, vector<DeclarationNode*> declarations)
-    :m_lexer (Lexer(file)), m_debug(debug), m_matchedID(false), m_indent(-1),
-    root (ProgramNode(declarations))
+    :m_lexer (Lexer(file)), m_matchedID(false), root (ProgramNode(declarations))
 { }
 
 /***********************************************************************/
 
-//program	-->		declaration-list
 void
 Parser::parse ()
 {
 	m_token = m_lexer.getToken ();
-	declarationList ();
+	declaration (&root);
 	match (END_OF_FILE, "EOF", "program");
 	cout << "Program is valid!" << endl;
 	PrintVisitor visitor;
@@ -47,54 +45,36 @@ Parser::parse ()
 
 /***********************************************************************/
 
-//declaration-list 	 -->	declaration {declaration}
-void
-Parser::declarationList ()
+void 
+Parser::declaration (auto parent)
 {
-	if (m_debug) enter("declarationList");
 	while (m_token.type == INT || m_token.type == VOID)
 	{
-		declaration();
+		ValueType type = typeSpecifier ();
+		string id = m_token.lexeme;
+
+		match (ID, "ID", "declaration");
+		if (m_token.type == SEMI || m_token.type == LBRACK) 
+		{
+			variableDeclaration (type, id, parent);
+		}
+		else if (m_token.type == LPAREN)
+		{
+
+			functionDeclaration (type, id);
+		}
+		else
+		{
+			error (";', '[' or '(", "declaration");
+		}
 	}
-	if (m_debug) leave("declarationList");
 }
 
-//declaration 	-->		type-specifier ID (variable-declaration | function-declaration)
-void 
-Parser::declaration ()
-{
-	if (m_debug) enter("declaration");
-	ValueType valueType = (m_token.lexeme == "int") ? ValueType::INT : ValueType::VOID;
-	typeSpecifier ();
-	string id = m_token.lexeme;
-
-	match (ID, "ID", "declaration");
-	if (m_token.type == SEMI || m_token.type == LBRACK) 
-	{
-		variableDeclaration ();
-		VariableDeclarationNode* varDecl = new VariableDeclarationNode(valueType, id);
-		root.declarations.push_back (varDecl);
-	}
-	else if (m_token.type == LPAREN)
-	{
-		vector<ParameterNode*> paramVec;
-
-		functionDeclaration (paramVec);
-		FunctionDeclarationNode* funDecl = new FunctionDeclarationNode(valueType, id, paramVec);
-		root.declarations.push_back (funDecl);
-	}
-	else
-	{
-		error (";', '[' or '(", "declaration");
-	}
-	if (m_debug) leave("declaration");
-}
-
-//variable-declaration 	-->		["[" NUM "]"] ";"
 void
-Parser::variableDeclaration ()
+Parser::variableDeclaration (ValueType type, string id, auto parent)
 {
-	if (m_debug) enter("variableDeclaration");
+	VariableDeclarationNode* varDecl = new VariableDeclarationNode(type, id);
+	parent -> declarations.push_back (varDecl);
 	if (m_token.type == SEMI)
 	{
 		match (SEMI, ";' or '[", "variableDeclaration");
@@ -106,43 +86,38 @@ Parser::variableDeclaration ()
 		match (RBRACK, "]", "variableDeclaration");
 		match (SEMI, ";", "variableDeclaration");
 	}
-	if (m_debug) leave("variableDeclaration");
 }
 
-//type-specifier	-->		"int" | "void"
-void
+ValueType
 Parser::typeSpecifier ()
 {
-	if (m_debug) enter("typeSpecifier");
 	if (m_token.type == INT )
 	{
 		match (INT, "int' or 'void", "typeSpecifier");
+		return ValueType::INT;
 	}
 	else
 	{
 		match (VOID, "int' or 'void", "typeSpecifier");
+		return ValueType::VOID;
 	}
-	if (m_debug) leave("typeSpecifier");
 }
 
-//function-declaration 	-->		"(" params ")" compound-stmt
 void
-Parser::functionDeclaration (vector<ParameterNode*> & paramVec)
+Parser::functionDeclaration (ValueType type, string id)
 {
-	if (m_debug) enter("functionDeclaration");
+	vector<ParameterNode*> paramVec;
 	match (LPAREN, "(", "functionDeclaration");
 	params (paramVec);
 	match (RPAREN, ")", "functionDeclaration");
-	compoundStmt ();
-	if (m_debug) leave("functionDeclaration");
+	CompoundStatementNode* body = compoundStmt ();
+	FunctionDeclarationNode* funDecl = new FunctionDeclarationNode(type, id, paramVec, body);
+	root.declarations.push_back (funDecl);
 }
 
-//params	-->		param-list | "void"
 void
 Parser::params (vector<ParameterNode*> & paramVec)
 {
-
-	if (m_debug) enter("params");
 	if (m_token.type == VOID)
 	{
 		match (VOID, "void", "params");
@@ -151,34 +126,25 @@ Parser::params (vector<ParameterNode*> & paramVec)
 	{
 		paramList (paramVec);
 	}
-	if (m_debug) leave("params");
 }
 
-//param-list	-->		param ["," param-list]
 void
 Parser::paramList (vector<ParameterNode*> & paramVec)
 {
-	if (m_debug) enter("paramList");
 	param (paramVec);
-	if (m_token.type == COMMA)
+	while (m_token.type == COMMA)
 	{
 		match (COMMA, ",", "paramList");
-		paramList (paramVec);
+		param (paramVec);
 	}
-	if (m_debug) leave("paramList");
 }
 
-//param 	-->		type-specifier ID ["[" "]"]
 void
 Parser::param (vector<ParameterNode*> & paramVec)
 {
-	if (m_debug) enter("param");
-	ValueType valueType = (m_token.lexeme == "int") ? ValueType::INT : ValueType::VOID;
-	typeSpecifier ();
-	string id = m_token.lexeme;
+	ValueType valueType = typeSpecifier ();
 	bool isArray = false;
-
-	match (ID, "ID", "param");
+	string id = match (ID, "ID", "param");
 	if (m_token.type == LBRACK)
 	{
 		isArray = true;
@@ -188,146 +154,127 @@ Parser::param (vector<ParameterNode*> & paramVec)
 
 	ParameterNode* parameter = new ParameterNode(valueType, id, isArray);
 	paramVec.push_back (parameter);
-	if (m_debug) leave("param");
 }
 
-//compound-stmt		-->		"{" local-declarations statement-list "}"
-void
+CompoundStatementNode*
 Parser::compoundStmt ()
-{
-	if (m_debug) enter("compoundStmt");
+{	vector<VariableDeclarationNode*> declarations;
+	vector<StatementNode*> statements;
+	CompoundStatementNode* compStmtNode = new CompoundStatementNode(declarations, statements);
 	match (LBRACE, "{", "compoundStmt");
-	localDeclarations ();
-	statementList ();
+	localDeclarations (compStmtNode);
+	statementList (compStmtNode);
 	match (RBRACE, "}", "compoundStmt");
-	if (m_debug) leave("compoundStmt");
+	return compStmtNode;
 }
 
-//local-declarations	-->		{variable-declaration}
 void
-Parser::localDeclarations ()
+Parser::localDeclarations (auto parent)
 {
-	if (m_debug) enter("localDeclarations");
 	while (m_token.type == INT || m_token.type == VOID)
 	{
-		typeSpecifier ();
-		match (ID, "ID", "localDeclarations");
-		variableDeclaration ();
+		ValueType type = typeSpecifier ();
+		string id = match (ID, "ID", "localDeclarations");
+		variableDeclaration (type, id, parent);
 	}
-	if (m_debug) leave("localDeclarations");
 }
 
-//statement-list	-->		{statement}
 void
-Parser::statementList ()
+Parser::statementList (auto parent)
 {
-	if (m_debug) enter("statementList");
 	while (m_token.type == ID || m_token.type == NUM || m_token.type == LPAREN || m_token.type == SEMI || m_token.type == LBRACE || m_token.type == IF || m_token.type == WHILE || m_token.type == RETURN)
 	{
-		statement ();
+		statement (parent);
 	}
-	if (m_debug) leave("statementList");
 }
 
-//statement -->	expression-stmt | compound-stmt | selection-stmt | iteration-stmt | return-stmt
 void
-Parser::statement ()
+Parser::statement (auto parent)
 {
-	if (m_debug) enter("statement");
 	switch (m_token.type)
 	{
 		case ID:
 		case NUM:
 		case LPAREN:
 		case SEMI:
-			expressionStmt ();
+			expressionStmt (parent);
 			break;
 		case LBRACE:
 			compoundStmt ();
 			break;
 		case IF:
-			selectionStmt ();
+			selectionStmt (parent);
 			break;
 		case WHILE:
-			iterationStmt ();
+			iterationStmt (parent);
 			break;
 		case RETURN:
-			returnStmt ();
+			returnStmt (parent);
 			break;
 		default:
 			error (";', '{',  'if', 'while' or 'return", "statement");
 	}
-	if (m_debug) leave("statement");
 }
 
-//expression-stmt	-->		[expression] ";"
 void
-Parser::expressionStmt ()
+Parser::expressionStmt (auto parent)
 {
-	if (m_debug) enter("expressionStmt");
 	if (m_token.type == ID || m_token.type == NUM || m_token.type == LPAREN)
 	{
 		expression ();
 	}
 	match (SEMI, ";", "expressionStmt");
-	if (m_debug) leave("expressionStmt");
 }
 
-//selection-stmt	-->		"if" "(" expression ")" statement ["else" statement]
 void
-Parser::selectionStmt ()
+Parser::selectionStmt (auto parent)
 {
-	if (m_debug) enter("selectionStmt");
+
 	match (IF, "if", "selectionStmt");
 	match (LPAREN, "(", "selectionStmt");
-	expression ();
+	ExpressionNode* expr = expression ();
 	match (RPAREN, ")", "selectionStmt");
-	statement ();
+	//StatementNode* thenStmt = statement (parent);
+	statement (parent);
+	//StatementNode* elseStmt = nullptr;
 	if (m_token.type == ELSE)
 	{
 		match (ELSE, "else", "selectionStmt");
-		statement ();
+		//elseStmt = statement (parent);
 	}
-	if (m_debug) leave("selectionStmt");
+	//IfStatementNode* ifNode = new IfStatementNode(expr, thenStmt, elseStmt);
+	//parent -> statements.push_back(ifNode);
 }
 
-//iteration-stmt	-->		"while" "(" expression ")" statement
 void
-Parser::iterationStmt ()
+Parser::iterationStmt (auto parent)
 {
-	if (m_debug) enter("iterationStmt");
 	match (WHILE, "while", "iterationStmt");
 	match (LPAREN, "(", "iterationStmt");
 	expression ();
 	match (RPAREN, ")", "iterationStmt");
-	statement ();
-	if (m_debug) leave("iterationStmt");
+	statement (parent);
 }
 
-//return-stmt	-->		"return" [expression] ";"
 void
-Parser::returnStmt ()
+Parser::returnStmt (auto parent)
 {
-	if (m_debug) enter("returnStmt");
 	match (RETURN, "return", "returnStmt");
 	if (m_token.type == ID || m_token.type == NUM || m_token.type == LPAREN)
 	{
 		expression ();
 	}
+
 	match (SEMI, "expression or ;", "returnStmt");
-	if (m_debug) leave("returnStmt");
 }
 
-//expression 	-->		var "=" expression | simple-expression
-//only place we need to diverge from one token look-ahead
-void
+ExpressionNode*
 Parser::expression ()
 {
-	if (m_debug) enter("expression");
 	//if we see ID, we could have either production
 	if (m_token.type == ID)
 	{
-		match (ID, "ID", "expression");
+		m_IDLexeme = match (ID, "ID", "expression");
 		//PAREN means we have a simple-expression
 		if (m_token.type == LPAREN)
 		{
@@ -359,7 +306,6 @@ Parser::expression ()
 	else {
 		simpleExpression ();
 	}
-	if (m_debug) leave("expression");
 }
 
 //var 	-->		ID ["[" expression "]"]
@@ -367,35 +313,30 @@ void
 Parser::var ()
 {
 	//ID is always checked by function that calls var, so no 'match (ID)' here
-	if (m_debug) enter("var");
 	if (m_token.type == LBRACK)
 	{
 		match (LBRACK, "[", "var");
 		expression ();
 		match (RBRACK, "]", "var");
 	}
-	if (m_debug) leave("var");
 }
 
 //simple-expression		-->		additive-expression [relop additive-expression]
 void
 Parser::simpleExpression ()
 {
-	if (m_debug) enter("simpleExpression");
 	additiveExpression ();
 	if (m_token.type == LT || m_token.type == LTE || m_token.type == GT || m_token.type == GTE || m_token.type == EQ || m_token.type == NEQ)
 	{
 		relop ();
 		additiveExpression ();
 	}
-	if (m_debug) leave("simpleExpression");
 }
 
 //relop		-->		"<=" | "<" | ">" | ">=" | "==" | "!="
 void
 Parser::relop ()
 {
-	if (m_debug) enter("relop");
 	switch (m_token.type)
 	{
 		case LT:
@@ -419,21 +360,18 @@ Parser::relop ()
 		default: 
 			break;
 	}
-	if (m_debug) leave("relop");
 }
 
 //additive-expression 	-->		term {addop term}
 void
 Parser::additiveExpression ()
 {
-	if (m_debug) enter("additiveExpression");
 	term ();
 	while (m_token.type == PLUS || m_token.type == MINUS)
 	{
 		addop ();
 		term ();
 	}
-	if (m_debug) leave("additiveExpression");
 }
 
 
@@ -441,7 +379,6 @@ Parser::additiveExpression ()
 void
 Parser::addop ()
 {
-	if (m_debug) enter("addop");
 	if (m_token.type == PLUS)
 	{
 		match (PLUS, "+", "addop");
@@ -450,28 +387,24 @@ Parser::addop ()
 	{
 		match (MINUS, "-", "addop");
 	}
-	if (m_debug) leave("addop");
 }
 
 //term 		-->		factor {mulop factor}
 void
 Parser::term ()
 {
-	if (m_debug) enter("term");
 	factor ();
 	while (m_token.type == TIMES || m_token.type == DIVIDE)
 	{
 		mulop ();
 		factor ();
 	}
-	if (m_debug) leave("term");
 }
 
 //mulop		-->		"*" | "/"
 void
 Parser::mulop ()
 {
-	if (m_debug) enter("mulop");
 	if (m_token.type == TIMES)
 	{
 		match (TIMES, "*", "mulop");
@@ -480,14 +413,12 @@ Parser::mulop ()
 	{
 		match (DIVIDE, "/", "mulop");
 	}
-	if (m_debug) leave("mulop");
 }
 
 //factor	-->		"(" expression ")" | var | call | NUM
 void
 Parser::factor ()
 {
-	if (m_debug) enter("factor");
 	if (m_matchedID)
 	{
 		//reset flag
@@ -526,60 +457,50 @@ Parser::factor ()
 				error ("( or ID or num", "factor");
 		}
 	}
-	if (m_debug) leave("factor");
 }
 
-//call		-->		ID "(" args ")"
-void
+CallExpressionNode*
 Parser::call ()
 {
-	if (m_debug) enter("call");
 	match (LPAREN, "(", "call");
-	args ();
+	vector<ExpressionNode*>  argNodeList = args ();
 	match (RPAREN, ")", "call");
-	if (m_debug) leave("call");
+	CallExpressionNode* callExpr = new CallExpressionNode(m_IDLexeme, argNodeList);
+	return callExpr;
 }
 
-//args		-->		arg-list | empty
-void
+vector<ExpressionNode*> 
 Parser::args ()
 {
-	if (m_debug) enter("args");
+	vector<ExpressionNode*> arguments;
 	if (m_token.type == ID || m_token.type == NUM || m_token.type == LPAREN)
 	{
-		argList ();
+		argList (arguments);
 	}
-	if (m_debug) leave("args");
+	return arguments;
 }
 
-//arg-list	   -->		expression {"," arg-list }
 void 
-Parser::argList ()
+Parser::argList (vector<ExpressionNode*> & args)
 {
-	if (m_debug) enter("argList");
-	expression ();
+	args.push_back (expression ());
 	while (m_token.type == COMMA)
 	{
 		match (COMMA, "=", "expression");
-		argList ();
+		args.push_back (expression ());
 	}
-	if (m_debug) leave("argList");
 }
 
 /***********************************************************************/
 
-void 
+string 
 Parser::match (Token expectedToken, string possibleTokens, string caller)
 {
 	 if (m_token.type == expectedToken.type)
 	{
-		if (m_debug)
-		{
-			printSpaces(m_indent);
-			cout << "|   " << "matching " << m_tokenList[m_token.type] << endl;	
-		}
-		
+		string lexeme = m_token.lexeme;
 		m_token = m_lexer.getToken ();
+		return lexeme;
 	}
 	else
 	{
@@ -592,30 +513,4 @@ Parser::error (string possibleTokens, string caller)
 {
 	cout << "Error while parsing '" << caller << "' on line " << m_lexer.getLines() << ", column " << m_lexer.getColumns() << endl << " Encountered '" << m_token.lexeme << "' but expected '" << possibleTokens << "'"<< endl;
 	exit(0);
-}
-
-/***********************************************************************/
-
-//debugging functions to see call trace
-void
-Parser::enter(string functionName)
-{
-	printSpaces(++m_indent);
-	cout << ">>>" <<functionName << endl;
-}
-
-void
-Parser::leave(string functionName)
-{
-	printSpaces(m_indent--);
-	cout << "<<<" <<functionName << endl;
-}
-
-void
-Parser::printSpaces(int spaces)
-{
-	for (int j = 0; j < spaces; ++j)
-	{
-		cout << "|   ";
-	}
 }

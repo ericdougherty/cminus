@@ -34,21 +34,18 @@ public:
     void
     parse ();
 
-private:
+private:    
     void
-    declarationList ();
+    declaration (auto parent);
     
     void
-    declaration ();
+    variableDeclaration (ValueType type, string id, auto parent);
     
-    void
-    variableDeclaration ();
-    
-    void
+    ValueType
     typeSpecifier ();
     
     void
-    functionDeclaration (vector<ParameterNode*> & paramVec);
+    functionDeclaration (ValueType type, string id);
     
     void
     params (vector<ParameterNode*> & paramVec);
@@ -59,31 +56,31 @@ private:
     void
     param (vector<ParameterNode*> & paramVec);
     
-    void
+    CompoundStatementNode*
     compoundStmt ();
     
     void
-    localDeclarations ();
+    localDeclarations (auto parent);
     
     void
-    statementList ();
+    statementList (auto parent);
     
     void
-    statement ();
+    statement (auto parent);
     
     void
-    expressionStmt ();
+    expressionStmt (auto parent);
 
     void
-    selectionStmt ();
+    selectionStmt (auto parent);
     
     void
-    iterationStmt ();
+    iterationStmt (auto parent);
     
     void
-    returnStmt ();
+    returnStmt (auto parent);
     
-    void
+    ExpressionNode*
     expression ();
     
     void
@@ -110,46 +107,29 @@ private:
     void
     factor ();
     
-    void
+    CallExpressionNode*
     call ();
     
-    void
+    vector<ExpressionNode*> 
     args ();
     
     void
-    argList ();
+    argList (vector<ExpressionNode*> & args);
 
-    void
+    string
     match (Token expectedToken, string possibleTokens, string caller);
     
     void
     error (string possibleTokens, string caller);
 
-    void 
-    enter (string functionName);
-
-    void 
-    leave (string functionName);
-
-    void 
-    printSpaces (int spaces);
-
     
 
 private:
-    //current token
-    Token   m_token;
-    //Lexer object
     Lexer   m_lexer;
-    //Run in debug mode
-    bool    m_debug;
-    //Flag for an already matched ID
+    Token   m_token;
     bool    m_matchedID;
-    //Indent level for debugging mode
-    int     m_indent;
+    string  m_IDLexeme;
     ProgramNode root;
-    //Vector of token types
-    const vector<string> m_tokenList = {"EOF", "ERROR", "IF", "ELSE", "INT", "VOID", "RETURN", "WHILE", "PLUS", "MINUS", "TIMES", "DIVIDE", "LT", "LTE", "GT", "GTE", "EQ", "NEQ", "ASSIGN", "INCREMENT", "DECREMENT", "SEMI", "COMMA", "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "ID", "NUM"};
 };
 
 /***********************************************************************/
