@@ -27,13 +27,14 @@ PrintVisitor::visit (ProgramNode* node)
       child -> accept (this);
     }
   --level;
+  cout << "AST Complete!" << endl;
 }
 
 void
 PrintVisitor::visit (VariableDeclarationNode* node)
 {
   printLevel ();
-  printNodeInfo ("Variable", node);
+  printNodeInfo ("Variable Declaration", node);
 }
 
 void
@@ -48,13 +49,15 @@ PrintVisitor::visit (FunctionDeclarationNode* node)
       child -> accept (this);
     }
   --level;
+
+  node -> functionBody -> accept (this);
 }
 
 void
 PrintVisitor::visit (ArrayDeclarationNode* node)
 {
   printLevel ();
-  printNodeInfo ("Variable", node);
+  printNodeInfo ("Variable Declaration", node);
 }
 void
 PrintVisitor::visit (ParameterNode* node)
@@ -68,7 +71,7 @@ void
 PrintVisitor::visit (CompoundStatementNode* node)
 {
   printLevel ();
-  cout << "Compound" << endl;
+  cout << "Compound Statement:" << endl;
 
   ++level;
   for (auto child : node -> declarations)
@@ -88,9 +91,11 @@ PrintVisitor::visit (IfStatementNode* node)
 {
   printLevel ();
   cout << "If" << endl;
+  ++level;
   node -> conditionalExpression -> accept (this);
   node -> thenStatement -> accept (this);
   node -> elseStatement -> accept (this);
+  --level;
 }
 
 void
@@ -125,23 +130,28 @@ void
 PrintVisitor::visit (ExpressionStatementNode* node)
 {
   printLevel ();
-  cout << "ExpressionStatement" << endl;
+  cout << "Expression Statement: " << endl;
+  ++level;
   node -> expression -> accept (this);
+  --level;
 }
 
 void
 PrintVisitor::visit (AssignmentExpressionNode* node)
 {
   printLevel ();
+  cout << "Assignment:" << endl;
+  ++level;
   node -> variable -> accept (this);
   node -> expression -> accept (this);
+  --level;
 }
 
 void
 PrintVisitor::visit (VariableExpressionNode* node)
 {
   printLevel ();
-  cout << node -> identifier << endl;
+  cout << "Variable: " << node -> identifier << endl;
 }
 
 void
@@ -177,7 +187,7 @@ PrintVisitor::visit (AdditiveExpressionNode* node)
       op = "-";
       break;
     }
-  cout << op << endl;
+  cout << "Additive Expression: "<< op << endl;
   node -> left -> accept (this);
   node -> right -> accept (this);
 }
@@ -196,9 +206,11 @@ PrintVisitor::visit (MultiplicativeExpressionNode* node)
       op = "/";
       break;
     }
-  cout << op << endl;
+  cout << "Multiplicative Expression: "<< op << endl;
+  ++level;
   node -> left -> accept (this);
   node -> right -> accept (this);
+  --level;
 }
 
 void
@@ -227,9 +239,19 @@ PrintVisitor::visit (RelationalExpressionNode* node)
       op = "!=";
       break;
     }
-  cout << op << endl;
+  cout << "Relational Expression: " << op << endl;
+  ++level;
+  printLevel ();
+  cout << "Left:" << endl;
+  ++level;
   node -> left -> accept (this);
+  --level;
+  printLevel ();
+  cout << "Right:" << endl;
+  ++level;
   node -> right -> accept (this);
+  --level;
+  --level;
 }
 
 void
@@ -243,8 +265,8 @@ PrintVisitor::visit (UnaryExpressionNode* node)
 void
 PrintVisitor::visit (IntegerLiteralExpressionNode* node)
 {
-  printLevel ();
-  cout << node -> value << endl;
+    printLevel ();
+    cout << "Integer: "<< node -> value << endl;
 }
 
 void
@@ -252,7 +274,7 @@ PrintVisitor::printLevel ()
 {
   for (size_t i = 0; i < level; ++i)
     {
-      cout << "|   ";
+      cout << "|  ";
     }
 }
 /********************************************************************/
@@ -511,16 +533,18 @@ VariableExpressionNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 /*
-  SubscriptExpressionNode::SubscriptExpressionNode (string id, ExpressionNode* index)
+SubscriptExpressionNode::SubscriptExpressionNode (string id, ExpressionNode* index)
   :index (index)
-  {}
-  SubscriptExpressionNode::~SubscriptExpressionNode ()
-  {}
-  void
-  SubscriptExpressionNode::accept (IVisitor* visitor)
-  {
+{}
+
+SubscriptExpressionNode::~SubscriptExpressionNode ()
+{}
+
+void
+SubscriptExpressionNode::accept (IVisitor* visitor)
+{
   visitor -> visit (this);
-  }
+}
 */
 /********************************************************************/
 
@@ -623,7 +647,7 @@ void
 printNodeInfo (string nodeType, auto node)
 {
   cout << nodeType << ": " << node -> identifier << ": ";
-  string type = (node -> valueType == ValueType::INT) ? "int" : "void";
+  string type = (node -> valueType == ValueType::INT) ? "Int" : "void";
   cout << type << " type" << endl;
 }
 

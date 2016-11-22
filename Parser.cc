@@ -195,36 +195,33 @@ Parser::statement ()
 		case NUM:
 		case LPAREN:
 		case SEMI:
-			expressionStmt ();
-			break;
+			return expressionStmt ();
 		case LBRACE:
-			compoundStmt ();
-			break;
+			return compoundStmt ();
 		case IF:
-			selectionStmt ();
-			break;
+			return selectionStmt ();
 		case WHILE:
-			iterationStmt ();
-			break;
+			return iterationStmt ();
 		case RETURN:
-			returnStmt ();
-			break;
+			return returnStmt ();
 		default:
 			error (";', '{',  'if', 'while' or 'return", "statement");
 	}
 }
 
-void
+ExpressionStatementNode*
 Parser::expressionStmt ()
 {
+	ExpressionNode* expr = nullptr;
 	if (m_token.type == ID || m_token.type == NUM || m_token.type == LPAREN)
 	{
-		expression ();
+		expr = expression ();
 	}
 	match (SEMI, ";", "expressionStmt");
+	return new ExpressionStatementNode(expr);
 }
 
-void
+IfStatementNode*
 Parser::selectionStmt ()
 {
 
@@ -232,26 +229,25 @@ Parser::selectionStmt ()
 	match (LPAREN, "(", "selectionStmt");
 	ExpressionNode* expr = expression ();
 	match (RPAREN, ")", "selectionStmt");
-	//StatementNode* thenStmt = statement (parent);
-	statement ();
-	//StatementNode* elseStmt = nullptr;
+	StatementNode* thenStmt = statement ();
+	StatementNode* elseStmt = nullptr;
 	if (m_token.type == ELSE)
 	{
 		match (ELSE, "else", "selectionStmt");
-		//elseStmt = statement (parent);
+		elseStmt = statement ();
 	}
-	//IfStatementNode* ifNode = new IfStatementNode(expr, thenStmt, elseStmt);
-	//parent -> statements.push_back(ifNode);
+	return new IfStatementNode(expr, thenStmt, elseStmt);
 }
 
-void
+WhileStatementNode*
 Parser::iterationStmt ()
 {
 	match (WHILE, "while", "iterationStmt");
 	match (LPAREN, "(", "iterationStmt");
-	expression ();
+	ExpressionNode* expr = expression ();
 	match (RPAREN, ")", "iterationStmt");
-	statement ();
+	StatementNode* stmt = statement ();
+	return new WhileStatementNode(expr, stmt);
 }
 
 ReturnStatementNode*
@@ -289,7 +285,7 @@ Parser::expression ()
 		else 
 		{
 			//we definitely have a var, but still could be either production
-			VariableExpressionNode* varNode = var (id);
+			VariableExpressionNode* varNode = m_varNode = var (id);
 
 			//if we see an assignment, we're in expression
 			if (m_token.type == ASSIGN)
@@ -336,7 +332,7 @@ Parser::simpleExpression ()
 		RelationalOperatorType op = relop ();
 		ExpressionNode* rhs = additiveExpression ();
 		RelationalExpressionNode* relNode = new RelationalExpressionNode(op, lhs, rhs);
-		//return relNode;
+		return relNode;
 	}
 	return lhs;
 }
@@ -378,7 +374,7 @@ Parser::additiveExpression ()
 		AdditiveOperatorType op = addop ();
 		ExpressionNode* rhs = term ();
 		AdditiveExpressionNode* addNode = new AdditiveExpressionNode(op, lhs, rhs);
-		//return addNode;
+		return addNode;
 	}
 	return lhs;
 	
@@ -408,7 +404,7 @@ Parser::term ()
 		MultiplicativeOperatorType op = mulop ();
 		ExpressionNode* rhs = factor ();
 		MultiplicativeExpressionNode* multNode = new MultiplicativeExpressionNode(op, lhs, rhs);
-		//return multNode;
+		return multNode;
 	}
 	return lhs;
 }
@@ -439,6 +435,7 @@ Parser::factor ()
 			return call (m_lexemeID);
 		}
 		//else we have just a var and already called var ()
+		return m_varNode;
 	}
 	else
 	{
