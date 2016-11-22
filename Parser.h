@@ -68,13 +68,13 @@ private:
     StatementNode*
     statement ();
     
-    void
+    ExpressionStatementNode*
     expressionStmt ();
 
-    void
+    IfStatementNode*
     selectionStmt ();
     
-    void
+    WhileStatementNode*
     iterationStmt ();
     
     ReturnStatementNode*
@@ -129,6 +129,7 @@ private:
     Token   m_token;
     bool    m_matchedID;
     string  m_lexemeID;
+    VariableExpressionNode* m_varNode;
     ProgramNode ast;
 };
 

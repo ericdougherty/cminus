@@ -9,7 +9,7 @@
 // System includes
 
 #include <cstdlib>
-
+  
 /************************************************************/
 // Local includes
 
@@ -17,23 +17,23 @@
 
 /************************************************************/
 
-int
-main (int argc, char* argv[])
-{
+  int
+  main (int argc, char* argv[])
+  {
     FILE* file;
     ++argv;
     --argc;  
     if (argc > 0)
     {
-        file = fopen (argv[0], "r");
+      file = fopen (argv[0], "r");
     }
     else
     {
-        file = stdin;
+      file = stdin;
     }
-  vector<DeclarationNode*> declarations;
-	Parser p(file, declarations);
-	p.parse();
+    vector<DeclarationNode*> declarations;
+    Parser p(file, declarations);
+    p.parse();
 
     return EXIT_SUCCESS;
-}
+  }
