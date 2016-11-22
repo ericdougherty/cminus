@@ -26,8 +26,8 @@ using std::string;
 /***********************************************************************/
 // Function prototypes/global vars/typedefs
 
-Parser::Parser (FILE* file, bool debug, vector<DeclarationNode*> declarations)
-    :m_lexer (Lexer(file)), m_matchedID(false), root (ProgramNode(declarations))
+Parser::Parser (FILE* file, vector<DeclarationNode*> declarations)
+    :m_lexer (Lexer(file)), m_matchedID(false), ast (ProgramNode(declarations))
 { }
 
 /***********************************************************************/
@@ -36,11 +36,11 @@ void
 Parser::parse ()
 {
 	m_token = m_lexer.getToken ();
-	declaration (&root);
+	declaration (&ast);
 	match (END_OF_FILE, "EOF", "program");
 	cout << "Program is valid!" << endl;
 	PrintVisitor visitor;
-	root.accept (&visitor);
+	ast.accept (&visitor);
 }
 
 /***********************************************************************/
@@ -51,9 +51,7 @@ Parser::declaration (auto parent)
 	while (m_token.type == INT || m_token.type == VOID)
 	{
 		ValueType type = typeSpecifier ();
-		string id = m_token.lexeme;
-
-		match (ID, "ID", "declaration");
+		string id = match (ID, "ID", "declaration");
 		if (m_token.type == SEMI || m_token.type == LBRACK) 
 		{
 			variableDeclaration (type, id, parent);
@@ -73,8 +71,6 @@ Parser::declaration (auto parent)
 void
 Parser::variableDeclaration (ValueType type, string id, auto parent)
 {
-	VariableDeclarationNode* varDecl = new VariableDeclarationNode(type, id);
-	parent -> declarations.push_back (varDecl);
 	if (m_token.type == SEMI)
 	{
 		match (SEMI, ";' or '[", "variableDeclaration");
@@ -86,6 +82,8 @@ Parser::variableDeclaration (ValueType type, string id, auto parent)
 		match (RBRACK, "]", "variableDeclaration");
 		match (SEMI, ";", "variableDeclaration");
 	}
+	VariableDeclarationNode* varDecl = new VariableDeclarationNode(type, id);
+	parent -> declarations.push_back (varDecl);
 }
 
 ValueType
@@ -112,7 +110,7 @@ Parser::functionDeclaration (ValueType type, string id)
 	match (RPAREN, ")", "functionDeclaration");
 	CompoundStatementNode* body = compoundStmt ();
 	FunctionDeclarationNode* funDecl = new FunctionDeclarationNode(type, id, paramVec, body);
-	root.declarations.push_back (funDecl);
+	ast.declarations.push_back (funDecl);
 }
 
 void
@@ -184,12 +182,12 @@ Parser::statementList (auto parent)
 {
 	while (m_token.type == ID || m_token.type == NUM || m_token.type == LPAREN || m_token.type == SEMI || m_token.type == LBRACE || m_token.type == IF || m_token.type == WHILE || m_token.type == RETURN)
 	{
-		statement (parent);
+		parent -> statements.push_back (statement ());
 	}
 }
 
-void
-Parser::statement (auto parent)
+StatementNode*
+Parser::statement ()
 {
 	switch (m_token.type)
 	{
@@ -197,19 +195,19 @@ Parser::statement (auto parent)
 		case NUM:
 		case LPAREN:
 		case SEMI:
-			expressionStmt (parent);
+			expressionStmt ();
 			break;
 		case LBRACE:
 			compoundStmt ();
 			break;
 		case IF:
-			selectionStmt (parent);
+			selectionStmt ();
 			break;
 		case WHILE:
-			iterationStmt (parent);
+			iterationStmt ();
 			break;
 		case RETURN:
-			returnStmt (parent);
+			returnStmt ();
 			break;
 		default:
 			error (";', '{',  'if', 'while' or 'return", "statement");
@@ -217,7 +215,7 @@ Parser::statement (auto parent)
 }
 
 void
-Parser::expressionStmt (auto parent)
+Parser::expressionStmt ()
 {
 	if (m_token.type == ID || m_token.type == NUM || m_token.type == LPAREN)
 	{
@@ -227,7 +225,7 @@ Parser::expressionStmt (auto parent)
 }
 
 void
-Parser::selectionStmt (auto parent)
+Parser::selectionStmt ()
 {
 
 	match (IF, "if", "selectionStmt");
@@ -235,7 +233,7 @@ Parser::selectionStmt (auto parent)
 	ExpressionNode* expr = expression ();
 	match (RPAREN, ")", "selectionStmt");
 	//StatementNode* thenStmt = statement (parent);
-	statement (parent);
+	statement ();
 	//StatementNode* elseStmt = nullptr;
 	if (m_token.type == ELSE)
 	{
@@ -247,25 +245,31 @@ Parser::selectionStmt (auto parent)
 }
 
 void
-Parser::iterationStmt (auto parent)
+Parser::iterationStmt ()
 {
 	match (WHILE, "while", "iterationStmt");
 	match (LPAREN, "(", "iterationStmt");
 	expression ();
 	match (RPAREN, ")", "iterationStmt");
-	statement (parent);
+	statement ();
 }
 
-void
-Parser::returnStmt (auto parent)
+ReturnStatementNode*
+Parser::returnStmt ()
 {
 	match (RETURN, "return", "returnStmt");
+	ReturnStatementNode* retNode = nullptr;
 	if (m_token.type == ID || m_token.type == NUM || m_token.type == LPAREN)
 	{
-		expression ();
+		ExpressionNode* exprNode = expression ();
+		retNode = new ReturnStatementNode(exprNode);
 	}
-
+	else
+	{
+		retNode = new ReturnStatementNode();
+	}
 	match (SEMI, "expression or ;", "returnStmt");
+	return retNode;
 }
 
 ExpressionNode*
@@ -274,199 +278,205 @@ Parser::expression ()
 	//if we see ID, we could have either production
 	if (m_token.type == ID)
 	{
-		m_IDLexeme = match (ID, "ID", "expression");
+		string id = m_lexemeID = match (ID, "ID", "expression");
 		//PAREN means we have a simple-expression
 		if (m_token.type == LPAREN)
 		{
 			//m_matchedID is a flag for simple-expression - we know we have a call, but already matched the ID
 			m_matchedID = true;
-			simpleExpression ();
+			return simpleExpression ();
 		}
 		else 
 		{
 			//we definitely have a var, but still could be either production
-			var ();
+			VariableExpressionNode* varNode = var (id);
 
 			//if we see an assignment, we're in expression
 			if (m_token.type == ASSIGN)
 			{
 				match (ASSIGN, "=", "expression");
-				expression ();
+				ExpressionNode* exprNode = expression ();
+				return new AssignmentExpressionNode (varNode, exprNode);
 			}
 			//otherwise we're in simple-expression
 			else
 			{
 				//set flag so we know we have already matched the ID
 				m_matchedID = true;
-				simpleExpression ();
+				return simpleExpression ();
 			}
 		}
 	}
 	//var must start with ID, so we go to simple-expression
 	else {
-		simpleExpression ();
+		return simpleExpression ();
 	}
 }
 
-//var 	-->		ID ["[" expression "]"]
-void
-Parser::var ()
+VariableExpressionNode*
+Parser::var (string id)
 {
 	//ID is always checked by function that calls var, so no 'match (ID)' here
+	VariableExpressionNode* varNode = new VariableExpressionNode(id);
 	if (m_token.type == LBRACK)
 	{
 		match (LBRACK, "[", "var");
 		expression ();
 		match (RBRACK, "]", "var");
 	}
+	return varNode;
 }
 
-//simple-expression		-->		additive-expression [relop additive-expression]
-void
+ExpressionNode*
 Parser::simpleExpression ()
 {
-	additiveExpression ();
+	ExpressionNode* lhs = additiveExpression ();
 	if (m_token.type == LT || m_token.type == LTE || m_token.type == GT || m_token.type == GTE || m_token.type == EQ || m_token.type == NEQ)
 	{
-		relop ();
-		additiveExpression ();
+		RelationalOperatorType op = relop ();
+		ExpressionNode* rhs = additiveExpression ();
+		RelationalExpressionNode* relNode = new RelationalExpressionNode(op, lhs, rhs);
+		//return relNode;
 	}
+	return lhs;
 }
 
-//relop		-->		"<=" | "<" | ">" | ">=" | "==" | "!="
-void
+RelationalOperatorType
 Parser::relop ()
 {
 	switch (m_token.type)
 	{
 		case LT:
 			match (LT, "<", "relop");
-			break;
+			return RelationalOperatorType::LT;
 		case LTE:
 			match (LTE, "<=", "relop");
-			break;
+			return RelationalOperatorType::LTE;
 		case GT:
 			match (GT, ">", "relop");
-			break;
+			return RelationalOperatorType::GT;
 		case GTE:
 			match (GTE, ">=", "relop");
-			break;
+			return RelationalOperatorType::GTE;
 		case EQ:
 			match (EQ, "==", "relop");
-			break;
+			return RelationalOperatorType::EQ;
 		case NEQ:
 			match (NEQ, "!=", "relop");
-			break;
+			return RelationalOperatorType::NEQ;
 		default: 
 			break;
 	}
 }
 
-//additive-expression 	-->		term {addop term}
-void
+ExpressionNode*
 Parser::additiveExpression ()
 {
-	term ();
+	ExpressionNode* lhs = term ();
 	while (m_token.type == PLUS || m_token.type == MINUS)
 	{
-		addop ();
-		term ();
+		AdditiveOperatorType op = addop ();
+		ExpressionNode* rhs = term ();
+		AdditiveExpressionNode* addNode = new AdditiveExpressionNode(op, lhs, rhs);
+		//return addNode;
 	}
+	return lhs;
+	
 }
 
-
-//addop		-->		"+" | "-"
-void
+AdditiveOperatorType
 Parser::addop ()
 {
 	if (m_token.type == PLUS)
 	{
 		match (PLUS, "+", "addop");
+		return AdditiveOperatorType::PLUS;
 	}
 	else
 	{
 		match (MINUS, "-", "addop");
+		return AdditiveOperatorType::MINUS;
 	}
 }
 
-//term 		-->		factor {mulop factor}
-void
+ExpressionNode*
 Parser::term ()
 {
-	factor ();
+	ExpressionNode* lhs = factor ();
 	while (m_token.type == TIMES || m_token.type == DIVIDE)
 	{
-		mulop ();
-		factor ();
+		MultiplicativeOperatorType op = mulop ();
+		ExpressionNode* rhs = factor ();
+		MultiplicativeExpressionNode* multNode = new MultiplicativeExpressionNode(op, lhs, rhs);
+		//return multNode;
 	}
+	return lhs;
 }
 
-//mulop		-->		"*" | "/"
-void
+MultiplicativeOperatorType
 Parser::mulop ()
 {
 	if (m_token.type == TIMES)
 	{
 		match (TIMES, "*", "mulop");
+		return MultiplicativeOperatorType::TIMES;
 	}
 	else
 	{
 		match (DIVIDE, "/", "mulop");
+		return MultiplicativeOperatorType::DIVIDE;
 	}
 }
 
-//factor	-->		"(" expression ")" | var | call | NUM
-void
+ExpressionNode*
 Parser::factor ()
 {
 	if (m_matchedID)
 	{
-		//reset flag
 		m_matchedID = false;
-		//if PAREN we have a call
 		if (m_token.type == LPAREN)
 		{
-			call ();
+			return call (m_lexemeID);
 		}
 		//else we have just a var and already called var ()
 	}
 	else
 	{
-		switch (m_token.type)
+		if (m_token.type == LPAREN)
 		{
-			case LPAREN:
-				match (LPAREN, "(", "factor");
-				expression ();
-				match (RPAREN, ")", "factor");
-				break;
-			case ID:
-				match (ID, "ID", "factor");
-				if (m_token.type == LPAREN)
-				{
-					call ();
-				}
-				else
-				{
-					var ();
-				}
-				break;
-			case NUM:
-				match (NUM, "num", "factor");
-				break;
-			default:
-				error ("( or ID or num", "factor");
+			match (LPAREN, "(", "factor");
+			ExpressionNode* expr =  expression ();
+			match (RPAREN, ")", "factor");
+			return expr;
+		}
+		else if (m_token.type == ID)
+		{
+			string id = match (ID, "ID", "factor");
+			if (m_token.type == LPAREN)
+			{
+				return call (id);
+			}
+			else
+			{
+				return var (id);
+			}
+		}
+		else if (m_token.type == NUM)
+		{
+			int num = m_token.number;
+			match (NUM, "num", "factor");
+			return new IntegerLiteralExpressionNode(num);
 		}
 	}
 }
 
 CallExpressionNode*
-Parser::call ()
+Parser::call (string id)
 {
 	match (LPAREN, "(", "call");
 	vector<ExpressionNode*>  argNodeList = args ();
 	match (RPAREN, ")", "call");
-	CallExpressionNode* callExpr = new CallExpressionNode(m_IDLexeme, argNodeList);
-	return callExpr;
+	return new CallExpressionNode(id, argNodeList);
 }
 
 vector<ExpressionNode*> 

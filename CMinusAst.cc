@@ -68,14 +68,14 @@ void
 PrintVisitor::visit (CompoundStatementNode* node)
 {
   printLevel ();
-  printNodeInfo ("Compound", node);
+  cout << "Compound" << endl;
 
   ++level;
   for (auto child : node -> declarations)
     {
       child -> accept (this);
     }
-	
+    
   for (auto child : node -> statements)
     {
       child -> accept (this);
@@ -118,6 +118,14 @@ PrintVisitor::visit (ReturnStatementNode* node)
 {
   printLevel ();
   cout << "Return" << endl;
+  node -> expression -> accept (this);
+}
+
+void
+PrintVisitor::visit (ExpressionStatementNode* node)
+{
+  printLevel ();
+  cout << "ExpressionStatement" << endl;
   node -> expression -> accept (this);
 }
 
@@ -175,6 +183,25 @@ PrintVisitor::visit (AdditiveExpressionNode* node)
 }
 
 void
+PrintVisitor::visit (MultiplicativeExpressionNode* node)
+{
+  printLevel ();
+  string op = "";
+  switch (node -> multOperator)
+    {
+    case MultiplicativeOperatorType::TIMES:
+      op = "*";
+      break;
+    case MultiplicativeOperatorType::DIVIDE:
+      op = "/";
+      break;
+    }
+  cout << op << endl;
+  node -> left -> accept (this);
+  node -> right -> accept (this);
+}
+
+void
 PrintVisitor::visit (RelationalExpressionNode* node)
 {
   printLevel ();
@@ -206,10 +233,10 @@ PrintVisitor::visit (RelationalExpressionNode* node)
 }
 
 void
-PrintVisitor::visit (UrnaryExpressionNode* node)
+PrintVisitor::visit (UnaryExpressionNode* node)
 {
   printLevel ();
-  cout << node -> unaryOperator;
+  //cout << node -> unaryOperator;
   cout << node -> variable << endl;
 }
 
@@ -255,7 +282,7 @@ ProgramNode::accept (IVisitor* visitor)
 /********************************************************************/
 
 DeclarationNode::DeclarationNode (ValueType t, string id)
-  :valueType (t), identifier (id), nestLevel (0)
+  :valueType (t), identifier (id)
 {}
 
 DeclarationNode::~DeclarationNode ()
@@ -280,7 +307,7 @@ VariableDeclarationNode::accept (IVisitor* visitor)
 /********************************************************************/
 
 FunctionDeclarationNode::FunctionDeclarationNode (ValueType t, string id,
-						  vector<ParameterNode*> params, CompoundStatementNode* body)
+                          vector<ParameterNode*> params, CompoundStatementNode* body)
   :DeclarationNode (t, id), parameters (params), functionBody(body)
 {}
 
@@ -301,7 +328,7 @@ FunctionDeclarationNode::accept (IVisitor* visitor)
 /********************************************************************/
 
 ArrayDeclarationNode::ArrayDeclarationNode (ValueType t, string id, size_t size)
-  :DeclarationNode (t, id), size (size)
+  :VariableDeclarationNode (t, id), size (size)
 {}
 
 
@@ -334,14 +361,20 @@ ParameterNode::accept (IVisitor* visitor)
 StatementNode::~StatementNode ()
 {}
 
+void
+StatementNode::accept (IVisitor* visitor)
+{
+  visitor -> visit (this);
+}
+
 /********************************************************************/
-CoumpoundStatementNode::CompoundStatementNode (vector<VariableDeclarationNode*> declarations,vector<statementNode*> statements)
+CompoundStatementNode::CompoundStatementNode (vector<VariableDeclarationNode*> declarations,vector<StatementNode*> statements)
   :declarations(declarations), statements (statements)
 {}
 
-CoumpoundStatementNode::~CompoundStatementNode ()
+CompoundStatementNode::~CompoundStatementNode ()
 {
-  for (auto decls : declarations)
+  for (auto decl : declarations)
     delete decl;
   declarations.clear ();
   
@@ -350,7 +383,8 @@ CoumpoundStatementNode::~CompoundStatementNode ()
   statements.clear ();
 }
 
-void CoumpoundStatementNode ()
+void
+CompoundStatementNode::accept (IVisitor* visitor)
 {
   visitor -> visit (this);
 }
@@ -358,7 +392,7 @@ void CoumpoundStatementNode ()
 /********************************************************************/
 
 IfStatementNode::IfStatementNode (ExpressionNode* expr, StatementNode* thenStmt,
-				  StatementNode* elseStmt = nullptr)
+                  StatementNode* elseStmt = nullptr)
   :conditionalExpression(expr), thenStatement (thenStmt), elseStatement (elseStmt)
 {}
 
@@ -374,9 +408,9 @@ IfStatementNode::accept (IVisitor* visitor)
 /********************************************************************/
 
 ForStatementNode::ForStatementNode (ExpressionNode* e1,
-				    ExpressionNode* e2,
-				    ExpressionNode* e3,
-				    StatementNode* s)
+                    ExpressionNode* e2,
+                    ExpressionNode* e3,
+                    StatementNode* s)
   :initializer (e1), condition (e2), updater (e3), body (s)
 {}
 
@@ -395,7 +429,8 @@ WhileStatementNode::WhileStatementNode (ExpressionNode* expr, StatementNode* stm
   : conditionalExpression (expr), body (stmt)
 {}
 
-WhileStatementNode::~WhileStatementNode ();
+WhileStatementNode::~WhileStatementNode ()
+{}
 
 void
 WhileStatementNode::accept (IVisitor* visitor)
@@ -406,10 +441,11 @@ WhileStatementNode::accept (IVisitor* visitor)
 /********************************************************************/
 
 ReturnStatementNode::ReturnStatementNode  (ExpressionNode* expr)
-  : expressionNode (expr))
+  : expression (expr)
 {}
 
-ReturnStatementNod::~ReturnStatementNode ();
+ReturnStatementNode::~ReturnStatementNode ()
+{}
 
 void
 ReturnStatementNode::accept (IVisitor* visitor)
@@ -420,6 +456,12 @@ ReturnStatementNode::accept (IVisitor* visitor)
 /********************************************************************/
 ExpressionNode::~ExpressionNode ()
 {}
+
+void
+ExpressionNode::accept (IVisitor* visitor)
+{
+  visitor -> visit (this);
+}
 
 /********************************************************************/
 
@@ -439,7 +481,7 @@ ExpressionStatementNode::accept (IVisitor* visitor)
 /********************************************************************/
 
 AssignmentExpressionNode::AssignmentExpressionNode (VariableExpressionNode* var,
-						    ExpressionNode* expr)
+                            ExpressionNode* expr)
   :variable (var), expression (expr)
 {}
 
@@ -486,7 +528,8 @@ CallExpressionNode::CallExpressionNode (string id, vector<ExpressionNode*> args)
   :identifier (id), arguments (args)
 {}
 
-CallExpressionNode::~CallExpressionNode ();
+CallExpressionNode::~CallExpressionNode ()
+{}
 
 void
 CallExpressionNode::accept (IVisitor* visitor)
@@ -494,9 +537,10 @@ CallExpressionNode::accept (IVisitor* visitor)
   visitor -> visit (this);
 }
 /********************************************************************/
+
 AdditiveExpressionNode::AdditiveExpressionNode (AdditiveOperatorType addop,
-						ExpressionNode* lhs,
-						ExpressionNode* rhs)
+                        ExpressionNode* lhs,
+                        ExpressionNode* rhs)
   :addOperator (addop), left (lhs), right (rhs)
 {}
 
@@ -511,9 +555,26 @@ AdditiveExpressionNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
+MultiplicativeExpressionNode::MultiplicativeExpressionNode (MultiplicativeOperatorType multop,
+                                        ExpressionNode* lhs,
+                                        ExpressionNode* rhs)
+  :multOperator (multop), left (lhs), right (rhs)
+{}
+
+MultiplicativeExpressionNode::~MultiplicativeExpressionNode ()
+{}
+
+void
+MultiplicativeExpressionNode::accept (IVisitor* visitor)
+{
+  visitor -> visit (this);
+}
+
+/********************************************************************/
+
 RelationalExpressionNode::RelationalExpressionNode (RelationalOperatorType relop,
-						    ExpressionNode* lhs,
-						    ExpressionNode* rhs)
+                            ExpressionNode* lhs,
+                            ExpressionNode* rhs)
   :relationalOperator (relop), left (lhs), right (rhs)
 {}
 
@@ -528,11 +589,12 @@ RelationalExpressionNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 UnaryExpressionNode::UnaryExpressionNode (UnaryOperatorType unaryOp,
-		       VariableExpressionNode* var)
+               VariableExpressionNode* var)
   :unaryOperator (unaryOp), variable (var)
 {}
 
-UnaryExpressionNode::~UnaryExpressionNode ();
+UnaryExpressionNode::~UnaryExpressionNode ()
+{}
 
 void
 UnaryExpressionNode::accept (IVisitor* visitor)
@@ -565,174 +627,4 @@ printNodeInfo (string nodeType, auto node)
   cout << type << " type" << endl;
 }
 
-/********************************************************************/
-
-
-/********************************************************************/
-// System Includes
-
-#include <iostream>
-#include "CMinusAst.h"
-
-/********************************************************************/
-// Using Declarations
-
-using std::cout;
-using std::endl;
-
-/********************************************************************/
-
-void
-PrintVisitor::visit (ProgramNode* node)
-{	
-  level = 0;
-  printLevel ();
-  cout << "Program" << endl;
-  ++level;
-  for (auto child : node -> declarations)
-    {
-      child -> accept(this);
-    }
-  --level;
-}
-
-void
-PrintVisitor::visit (VariableDeclarationNode* node)
-{	
-  printLevel ();
-  printNodeInfo("Variable", node);
-}
-
-void
-PrintVisitor::visit (FunctionDeclarationNode* node)
-{	
-  printLevel ();
-  printNodeInfo("Function", node);
-
-  ++level;
-  for (auto child : node -> parameters)
-    {
-      child -> accept(this);
-    }
-  --level;
-}
-
-
-void
-PrintVisitor::visit (ParameterNode* node)
-{
-  printLevel ();
-  printNodeInfo("Parameter", node);
-
-}
-
-void
-PrintVisitor::printLevel ()
-{
-  for (size_t i = 0; i < level; ++i)
-    {
-      cout << "|   ";
-    }
-	
-
-}
-/********************************************************************/
-
-Node::~Node ()
-{}
-
-/********************************************************************/
-
-ProgramNode::ProgramNode (vector<DeclarationNode*> declarations)
-  :declarations(declarations)
-{}
-
-
-ProgramNode::~ProgramNode()
-{
-  for (auto decl : declarations)
-    delete decl;
-  declarations.clear ();
-}
-
-void
-ProgramNode::accept (IVisitor* visitor)
-{
-  visitor -> visit(this);
-}
-
-/********************************************************************/
-
-
-DeclarationNode::DeclarationNode (ValueType t, string id)
-  :valueType(t), identifier(id), nestLevel(0)
-{} 
-
-DeclarationNode::~DeclarationNode ()
-{}
-/********************************************************************/
-
-
-VariableDeclarationNode::VariableDeclarationNode (ValueType t, string id)
-  :DeclarationNode(t, id)
-{}
-
-
-VariableDeclarationNode::~VariableDeclarationNode()
-{}
-
-void
-VariableDeclarationNode::accept (IVisitor* visitor)
-{
-  visitor -> visit(this);
-}
-
-/********************************************************************/
-
-
-FunctionDeclarationNode::FunctionDeclarationNode (ValueType t, string id, 
-						  vector<ParameterNode*> params)
-  //, CompoundStatementNode* body)
-  :DeclarationNode(t, id), parameters(params)
-   //, functionBody(body)	
-{}
-
-
-FunctionDeclarationNode::~FunctionDeclarationNode()
-{
-  for (auto param : parameters)
-    delete param;
-  parameters.clear ();
-}
-
-void
-FunctionDeclarationNode::accept (IVisitor* visitor)
-{
-  visitor -> visit(this);
-}
-
-/********************************************************************/
-
-ParameterNode::ParameterNode (ValueType t, string id, bool isArray)
-  :DeclarationNode(t, id), isArray (isArray)
-{}
-
-
-ParameterNode::~ParameterNode()
-{}
-
-void
-ParameterNode::accept (IVisitor* visitor)
-{
-  visitor -> visit(this);
-}
-
-/********************************************************************/
-void
-printNodeInfo (string nodeType, auto node)
-{
-  cout << nodeType << ": " << node -> identifier << ": ";
-  string type = (node -> valueType == ValueType::INT) ? "int" : "void"; 
-  cout << type << " type" << endl;
-}
 /********************************************************************/

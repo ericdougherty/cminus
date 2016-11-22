@@ -29,7 +29,7 @@ using std::vector;
 class Parser
 {
 public:
-    Parser (FILE* file, bool debug, vector<DeclarationNode*> declarations);
+    Parser (FILE* file, vector<DeclarationNode*> declarations);
 
     void
     parse ();
@@ -65,50 +65,50 @@ private:
     void
     statementList (auto parent);
     
-    void
-    statement (auto parent);
+    StatementNode*
+    statement ();
     
     void
-    expressionStmt (auto parent);
+    expressionStmt ();
 
     void
-    selectionStmt (auto parent);
+    selectionStmt ();
     
     void
-    iterationStmt (auto parent);
+    iterationStmt ();
     
-    void
-    returnStmt (auto parent);
+    ReturnStatementNode*
+    returnStmt ();
     
     ExpressionNode*
     expression ();
     
-    void
-    var ();
+    VariableExpressionNode*
+    var (string id);
     
-    void
+    ExpressionNode*
     simpleExpression ();
     
-    void
+    RelationalOperatorType
     relop ();
     
-    void
+    ExpressionNode*
     additiveExpression ();
     
-    void
+    AdditiveOperatorType
     addop ();
     
-    void
+    ExpressionNode*
     term ();
     
-    void
+    MultiplicativeOperatorType
     mulop ();
     
-    void
+    ExpressionNode*
     factor ();
     
     CallExpressionNode*
-    call ();
+    call (string id);
     
     vector<ExpressionNode*> 
     args ();
@@ -128,8 +128,8 @@ private:
     Lexer   m_lexer;
     Token   m_token;
     bool    m_matchedID;
-    string  m_IDLexeme;
-    ProgramNode root;
+    string  m_lexemeID;
+    ProgramNode ast;
 };
 
 /***********************************************************************/
