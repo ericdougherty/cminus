@@ -14,31 +14,39 @@
 // Local includes
 
 #include "Parser.h"
-#include "CMinusAst.h"
+#include "Ast.h"
+#include "Visitor.h"
 
 /***********************************************************************/
 // Using declarations
 
+using std::string;
 using std::cout;
 using std::endl;
-using std::string;
 
 /***********************************************************************/
 // Function prototypes/global vars/typedefs
 
-Parser::Parser (FILE* file, vector<DeclarationNode*> declarations)
-    :m_lexer (Lexer(file)), m_matchedID(false), ast (ProgramNode(declarations))
+Parser::Parser (FILE* file)
+    :m_lexer (Lexer(file)), m_matchedID(false), ast (ProgramNode())
 { }
 
 /***********************************************************************/
 
-void
+bool
 Parser::parse ()
 {
 	m_token = m_lexer.getToken ();
-	declaration (&ast);
+	declarations (&ast);
 	match (END_OF_FILE, "EOF", "program");
-	cout << "Program is valid!" << endl;
+	return true;
+}
+
+/***********************************************************************/
+
+void
+Parser::print ()
+{
 	PrintVisitor visitor;
 	ast.accept (&visitor);
 }
@@ -46,7 +54,7 @@ Parser::parse ()
 /***********************************************************************/
 
 void 
-Parser::declaration (auto parent)
+Parser::declarations (auto parent)
 {
 	while (m_token.type == INT || m_token.type == VOID)
 	{
@@ -71,18 +79,21 @@ Parser::declaration (auto parent)
 void
 Parser::variableDeclaration (ValueType type, string id, auto parent)
 {
+	VariableDeclarationNode* varDecl = nullptr;
 	if (m_token.type == SEMI)
 	{
 		match (SEMI, ";' or '[", "variableDeclaration");
+		varDecl = new VariableDeclarationNode(type, id);
 	}
 	else
 	{
 		match (LBRACK, "[' or ';", "variableDeclaration");
+		size_t size = m_token.number;
 		match (NUM, "num", "variableDeclaration");
 		match (RBRACK, "]", "variableDeclaration");
 		match (SEMI, ";", "variableDeclaration");
+		varDecl = new ArrayDeclarationNode(type, id, size);
 	}
-	VariableDeclarationNode* varDecl = new VariableDeclarationNode(type, id);
 	parent -> declarations.push_back (varDecl);
 }
 
@@ -145,11 +156,10 @@ Parser::param (vector<ParameterNode*> & paramVec)
 	string id = match (ID, "ID", "param");
 	if (m_token.type == LBRACK)
 	{
-		isArray = true;
 		match (LBRACK, "[", "param");
 		match (RBRACK, "]", "param");
+		isArray = true;
 	}
-
 	ParameterNode* parameter = new ParameterNode(valueType, id, isArray);
 	paramVec.push_back (parameter);
 }
@@ -271,39 +281,31 @@ Parser::returnStmt ()
 ExpressionNode*
 Parser::expression ()
 {
-	//if we see ID, we could have either production
 	if (m_token.type == ID)
 	{
-		string id = m_lexemeID = match (ID, "ID", "expression");
-		//PAREN means we have a simple-expression
+		string id = m_callID = match (ID, "ID", "expression");
 		if (m_token.type == LPAREN)
 		{
-			//m_matchedID is a flag for simple-expression - we know we have a call, but already matched the ID
 			m_matchedID = true;
 			return simpleExpression ();
 		}
 		else 
 		{
-			//we definitely have a var, but still could be either production
 			VariableExpressionNode* varNode = m_varNode = var (id);
 
-			//if we see an assignment, we're in expression
 			if (m_token.type == ASSIGN)
 			{
 				match (ASSIGN, "=", "expression");
 				ExpressionNode* exprNode = expression ();
 				return new AssignmentExpressionNode (varNode, exprNode);
 			}
-			//otherwise we're in simple-expression
 			else
 			{
-				//set flag so we know we have already matched the ID
 				m_matchedID = true;
 				return simpleExpression ();
 			}
 		}
 	}
-	//var must start with ID, so we go to simple-expression
 	else {
 		return simpleExpression ();
 	}
@@ -312,13 +314,17 @@ Parser::expression ()
 VariableExpressionNode*
 Parser::var (string id)
 {
-	//ID is always checked by function that calls var, so no 'match (ID)' here
-	VariableExpressionNode* varNode = new VariableExpressionNode(id);
+	VariableExpressionNode* varNode = nullptr;
 	if (m_token.type == LBRACK)
 	{
 		match (LBRACK, "[", "var");
-		expression ();
+		ExpressionNode* expr = expression ();
 		match (RBRACK, "]", "var");
+		varNode = new SubscriptExpressionNode(id, expr);
+	}
+	else
+	{
+		varNode = new VariableExpressionNode(id);
 	}
 	return varNode;
 }
@@ -432,9 +438,8 @@ Parser::factor ()
 		m_matchedID = false;
 		if (m_token.type == LPAREN)
 		{
-			return call (m_lexemeID);
+			return call (m_callID);
 		}
-		//else we have just a var and already called var ()
 		return m_varNode;
 	}
 	else

@@ -1,6 +1,6 @@
 ########################################################
 # Dr. Zoppetti: Generic Makefile
-# Modified by : Eric Dougherty - changed filenames
+# Modified by : Eric Dougherty
 ########################################################
 
 ########################################################
@@ -31,7 +31,7 @@ LDPATHS :=
 LDLIBS :=
 #LDLIBS := -lpthread -lboost_mpi -lboost_serialization
 
-OBJS := Lexer.o Parser.o Driver.o CMinusAst.o
+OBJS := Lexer.o Parser.o Driver.o Ast.o Visitor.o
 
 #############################################################
 # Rules
@@ -41,15 +41,17 @@ OBJS := Lexer.o Parser.o Driver.o CMinusAst.o
 #############################################################
 
 Driver : $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o Driver
+	$(CXX) $(CXXFLAGS) $(OBJS) -o cmin
 
 Lexer.o : Lexer.cc Lexer.h
 
-Parser.o : Parser.cc Parser.h CMinusAst.h
+Parser.o : Parser.cc Parser.h Ast.h Visitor.h
 
-Driver.o : Driver.cc
+Driver.o : Driver.cc Parser.h
 
-CMinusAst.o : CMinusAst.cc CMinusAst.h
+Ast.o : Ast.cc Ast.h Visitor.h
+
+Visitor.o : Visitor.cc Visitor.h
 
 #############################################################
 # Type "make clean" to delete executables, object files,

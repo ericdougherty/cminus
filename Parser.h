@@ -15,7 +15,11 @@
 
 #include <string>
 #include <vector>
-#include "CMinusAst.h"
+
+/***********************************************************************/
+// Local includes
+  
+#include "Ast.h"
 #include "Lexer.h"
 
 /***********************************************************************/
@@ -29,14 +33,17 @@ using std::vector;
 class Parser
 {
 public:
-    Parser (FILE* file, vector<DeclarationNode*> declarations);
+    Parser (FILE* file);
+
+    bool
+    parse ();
 
     void
-    parse ();
+    print ();
 
 private:    
     void
-    declaration (auto parent);
+    declarations (auto parent);
     
     void
     variableDeclaration (ValueType type, string id, auto parent);
@@ -128,7 +135,7 @@ private:
     Lexer   m_lexer;
     Token   m_token;
     bool    m_matchedID;
-    string  m_lexemeID;
+    string  m_callID;
     VariableExpressionNode* m_varNode;
     ProgramNode ast;
 };
