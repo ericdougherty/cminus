@@ -93,6 +93,9 @@ public:
   void
   printNodeInfo (string nodeType, auto node);
 
+  void
+  printArithmeticInfo (string nodeType, string op, auto node);
+
   size_t    level = 0;
   ofstream  file;
 };
