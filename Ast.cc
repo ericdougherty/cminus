@@ -1,5 +1,8 @@
-/********************************************************************/
-
+/*
+  Filename   : Ast.cc
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
 
 /********************************************************************/
 // Local Includes
@@ -151,24 +154,6 @@ IfStatementNode::~IfStatementNode ()
 
 void
 IfStatementNode::accept (IVisitor* visitor)
-{
-  visitor -> visit (this);
-}
-
-/********************************************************************/
-
-ForStatementNode::ForStatementNode (ExpressionNode* e1,
-                    ExpressionNode* e2,
-                    ExpressionNode* e3,
-                    StatementNode* s)
-  :initializer (e1), condition (e2), updater (e3), body (s)
-{}
-
-ForStatementNode::~ForStatementNode ()
-{}
-
-void
-ForStatementNode::accept (IVisitor* visitor)
 {
   visitor -> visit (this);
 }
@@ -339,21 +324,6 @@ RelationalExpressionNode::~RelationalExpressionNode ()
 
 void
 RelationalExpressionNode::accept (IVisitor* visitor)
-{
-  visitor -> visit (this);
-}
-
-/********************************************************************/
-UnaryExpressionNode::UnaryExpressionNode (UnaryOperatorType unaryOp,
-               VariableExpressionNode* var)
-  :unaryOperator (unaryOp), variable (var)
-{}
-
-UnaryExpressionNode::~UnaryExpressionNode ()
-{}
-
-void
-UnaryExpressionNode::accept (IVisitor* visitor)
 {
   visitor -> visit (this);
 }

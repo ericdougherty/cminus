@@ -1,5 +1,11 @@
+/*
+  Filename   : Visitor.h
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
+
 /********************************************************************/
-// C- AST Header File
+// C- Visitor Header File
 // Design by CSCI 435: Compilers class
 // Fall 2014
 // Fall 2016
@@ -7,7 +13,7 @@
 #ifndef VISITOR_H
 #define VISITOR_H
 
-/***********************************************************************/
+/********************************************************************/
 // System includes
 
 #include <fstream>
@@ -17,7 +23,7 @@
 
 #include "Ast.h"
 
-/***********************************************************************/
+/********************************************************************/
 // Using declarations
 
 using std::ofstream;
@@ -40,7 +46,6 @@ public:
   virtual void visit (CompoundStatementNode* node) = 0;
   virtual void visit (IfStatementNode* node) = 0;
   virtual void visit (WhileStatementNode* node) = 0;
-  virtual void visit (ForStatementNode* node) = 0;
   virtual void visit (ReturnStatementNode* node) = 0;
   virtual void visit (ExpressionStatementNode* node) = 0;
 
@@ -52,7 +57,6 @@ public:
   virtual void visit (AdditiveExpressionNode* node) = 0;
   virtual void visit (MultiplicativeExpressionNode* node) = 0;
   virtual void visit (RelationalExpressionNode* node) = 0;
-  virtual void visit (UnaryExpressionNode* node) = 0;
   virtual void visit (IntegerLiteralExpressionNode* node) = 0;
 };
 
@@ -71,8 +75,7 @@ public:
   virtual void visit (StatementNode* node){}; 
   virtual void visit (CompoundStatementNode* node); 
   virtual void visit (IfStatementNode* node); 
-  virtual void visit (WhileStatementNode* node); 
-  virtual void visit (ForStatementNode* node); 
+  virtual void visit (WhileStatementNode* node);
   virtual void visit (ReturnStatementNode* node); 
   virtual void visit (ExpressionStatementNode* node); 
 
@@ -83,8 +86,7 @@ public:
   virtual void visit (CallExpressionNode* node); 
   virtual void visit (AdditiveExpressionNode* node); 
   virtual void visit (MultiplicativeExpressionNode* node);
-  virtual void visit (RelationalExpressionNode* node); 
-  virtual void visit (UnaryExpressionNode* node); 
+  virtual void visit (RelationalExpressionNode* node);
   virtual void visit (IntegerLiteralExpressionNode* node); 
 
   void 

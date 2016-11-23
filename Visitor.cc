@@ -1,12 +1,15 @@
-/********************************************************************/
-
+/*
+  Filename   : Visitor.cc
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
 
 /********************************************************************/
 // System Includes
 
 #include <iostream>
 
-/***********************************************************************/
+/********************************************************************/
 // Local includes
 
 #include "Visitor.h"
@@ -102,19 +105,6 @@ PrintVisitor::visit (IfStatementNode* node)
   node -> conditionalExpression -> accept (this);
   node -> thenStatement -> accept (this);
   node -> elseStatement -> accept (this);
-  --level;
-}
-
-void
-PrintVisitor::visit (ForStatementNode* node)
-{
-  ++level;
-  printLevel ();
-  file << "For" << endl;
-  node -> initializer -> accept (this);
-  node -> condition -> accept (this);
-  node -> updater -> accept (this);
-  node -> body -> accept (this);
   --level;
 }
 
@@ -242,20 +232,8 @@ PrintVisitor::visit (RelationalExpressionNode* node)
   case RelationalOperatorType::NEQ:
     op = "!=";
     break;
-  case RelationalOperatorType::ERROR:
-    exit (1);
   }
   printArithmeticInfo ("RelationalExpression", op, node);
-}
-
-void
-PrintVisitor::visit (UnaryExpressionNode* node)
-{
-  ++level;    
-  printLevel ();
-  //file << node -> unaryOperator;
-  file << node -> variable << endl;
-  --level;
 }
 
 void
@@ -266,6 +244,8 @@ PrintVisitor::visit (IntegerLiteralExpressionNode* node)
   file << "Integer: "<< node -> value << endl;
   --level;
 }
+
+/********************************************************************/
 
 void
 PrintVisitor::printNodeInfo (string nodeType, auto node)
@@ -294,6 +274,6 @@ PrintVisitor::printLevel ()
 {
   for (size_t i = 0; i < level; ++i)
   {
-    file << "  ";
+    file << "|  ";
   }
 }

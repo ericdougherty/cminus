@@ -1,3 +1,8 @@
+/*
+  Filename   : Ast.h
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
 
 /********************************************************************/
 // C- AST Header File
@@ -44,7 +49,6 @@ struct StatementNode;
 struct CompoundStatementNode;
 struct IfStatementNode;
 struct WhileStatementNode;
-struct ForStatementNode;
 struct ReturnStatementNode;
 struct ExpressionStatementNode;
 
@@ -57,7 +61,6 @@ struct CallExpressionNode;
 struct AdditiveExpressionNode;
 struct MultiplicativeExpressionNode;
 struct RelationalExpressionNode;
-struct UnaryExpressionNode;
 struct IntegerLiteralExpressionNode;
 
 /********************************************************************/
@@ -237,24 +240,6 @@ struct WhileStatementNode : StatementNode
   StatementNode* body;
 };
 
-struct ForStatementNode : StatementNode
-{
-  ForStatementNode (ExpressionNode* e1,
-                    ExpressionNode* e2,
-                    ExpressionNode* e3,
-                    StatementNode* s);
-
-  ~ForStatementNode ();
-
-  void
-  accept (IVisitor* visitor);
-
-  ExpressionNode* initializer;
-  ExpressionNode* condition;
-  ExpressionNode* updater;
-  StatementNode*  body;
-};
-
 struct ReturnStatementNode : StatementNode
 {
   ReturnStatementNode (ExpressionNode* expr = nullptr);
@@ -387,21 +372,6 @@ struct RelationalExpressionNode : ExpressionNode
   RelationalOperatorType relationalOperator;
   ExpressionNode* left;
   ExpressionNode* right;
-};
-
-
-struct UnaryExpressionNode : ExpressionNode
-{
-  UnaryExpressionNode (UnaryOperatorType unaryOp,
-                       VariableExpressionNode* var);
-
-  ~UnaryExpressionNode ();
-
-  void
-  accept (IVisitor* visitor);
-
-  UnaryOperatorType unaryOperator;
-  VariableExpressionNode* variable;
 };
 
 struct IntegerLiteralExpressionNode : ExpressionNode
