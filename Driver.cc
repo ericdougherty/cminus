@@ -27,12 +27,21 @@ using std::endl;
   int
   main (int argc, char* argv[])
   {
+    string name;
+    
     FILE* file;
     ++argv;
     --argc;  
     if (argc > 0)
     {
       file = fopen (argv[0], "r");
+      name = argv[0];
+      size_t i = name.size() - 1;
+      while (name[i] != '.')
+      {
+        name.pop_back();
+        --i;
+      }
     }
     else
     {
@@ -41,7 +50,7 @@ using std::endl;
     Parser p(file);
     if (p.parse())
     {
-      p.print ();
+      p.print (name);
       cout << "Program is valid!" << endl;
     }
     return EXIT_SUCCESS;

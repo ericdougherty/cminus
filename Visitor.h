@@ -7,10 +7,20 @@
 #ifndef VISITOR_H
 #define VISITOR_H
 
+/***********************************************************************/
+// System includes
+
+#include <fstream>
+
 /********************************************************************/
 // Local Includes
 
 #include "Ast.h"
+
+/***********************************************************************/
+// Using declarations
+
+using std::ofstream;
 
 /********************************************************************/
 // Abstract Classes
@@ -83,7 +93,8 @@ public:
   void
   printNodeInfo (string nodeType, auto node);
 
-  size_t level;
+  size_t    level = 0;
+  ofstream  file;
 };
 
 #endif
