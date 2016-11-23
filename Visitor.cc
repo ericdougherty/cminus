@@ -23,14 +23,15 @@ PrintVisitor::visit (ProgramNode* node)
 {
   file << "Program Node:" << endl;
   for (auto child : node -> declarations)
-    {
-      child -> accept (this);
-    }
+  {
+    child -> accept (this);
+  }
 }
 
 void
 PrintVisitor::visit (VariableDeclarationNode* node)
 {
+  ++level;
   printLevel ();
   printNodeInfo ("Variable Declaration", node);
   --level;
@@ -39,13 +40,14 @@ PrintVisitor::visit (VariableDeclarationNode* node)
 void
 PrintVisitor::visit (FunctionDeclarationNode* node)
 {
+  ++level;
   printLevel ();
   printNodeInfo ("Function", node);
 
   for (auto child : node -> parameters)
-    {
-      child -> accept (this);
-    }
+  {
+    child -> accept (this);
+  }
 
   node -> functionBody -> accept (this);
   --level;
@@ -54,6 +56,7 @@ PrintVisitor::visit (FunctionDeclarationNode* node)
 void
 PrintVisitor::visit (ArrayDeclarationNode* node)
 {
+  ++level;
   printLevel ();
   string type = (node -> valueType == ValueType::INT) ? "Int" : "void";
   file << "Variable Declaration: " << node -> identifier ;
@@ -64,6 +67,7 @@ PrintVisitor::visit (ArrayDeclarationNode* node)
 void
 PrintVisitor::visit (ParameterNode* node)
 {
+  ++level;
   printLevel ();
   string type = (node -> valueType == ValueType::INT) ? "Int" : "void";
   string array = (node -> isArray == true) ? "[]: " : ": ";
@@ -74,23 +78,25 @@ PrintVisitor::visit (ParameterNode* node)
 void
 PrintVisitor::visit (CompoundStatementNode* node)
 {
+  ++level;
   printLevel ();
   file << "Compound Statement:" << endl;
   for (auto child : node -> declarations)
-    {
-      child -> accept (this);
-    }
+  {
+    child -> accept (this);
+  }
     
   for (auto child : node -> statements)
-    {
-      child -> accept (this);
-    }
+  {
+    child -> accept (this);
+  }
   --level;
 }
 
 void
 PrintVisitor::visit (IfStatementNode* node)
 {
+  ++level;
   printLevel ();
   file << "If" << endl;
   node -> conditionalExpression -> accept (this);
@@ -102,6 +108,7 @@ PrintVisitor::visit (IfStatementNode* node)
 void
 PrintVisitor::visit (ForStatementNode* node)
 {
+  ++level;
   printLevel ();
   file << "For" << endl;
   node -> initializer -> accept (this);
@@ -114,6 +121,7 @@ PrintVisitor::visit (ForStatementNode* node)
 void
 PrintVisitor::visit (WhileStatementNode* node)
 {
+  ++level;
   printLevel ();
   file << "While" << endl;
   node -> conditionalExpression -> accept (this);
@@ -124,6 +132,7 @@ PrintVisitor::visit (WhileStatementNode* node)
 void
 PrintVisitor::visit (ReturnStatementNode* node)
 {
+  ++level;
   printLevel ();
   file << "Return" << endl;
   node -> expression -> accept (this);
@@ -133,6 +142,7 @@ PrintVisitor::visit (ReturnStatementNode* node)
 void
 PrintVisitor::visit (ExpressionStatementNode* node)
 {
+  ++level;
   printLevel ();
   file << "Expression Statement: " << endl;
   node -> expression -> accept (this);
@@ -142,6 +152,7 @@ PrintVisitor::visit (ExpressionStatementNode* node)
 void
 PrintVisitor::visit (AssignmentExpressionNode* node)
 {
+  ++level;
   printLevel ();
   file << "Assignment:" << endl;
   node -> variable -> accept (this);
@@ -152,6 +163,7 @@ PrintVisitor::visit (AssignmentExpressionNode* node)
 void
 PrintVisitor::visit (VariableExpressionNode* node)
 {
+  ++level;
   printLevel ();
   file << "Variable: " << node -> identifier << endl;
   --level;
@@ -160,6 +172,7 @@ PrintVisitor::visit (VariableExpressionNode* node)
 void
 PrintVisitor::visit (SubscriptExpressionNode* node)
 {
+  ++level;
   printLevel ();
   file << "Subscript: " << node -> identifier << endl;
   ++level;
@@ -172,6 +185,7 @@ PrintVisitor::visit (SubscriptExpressionNode* node)
 void
 PrintVisitor::visit (CallExpressionNode* node)
 {
+  ++level;
   printLevel ();
   file << "Function Call: " << node -> identifier << endl;
   ++level;
@@ -187,6 +201,7 @@ PrintVisitor::visit (CallExpressionNode* node)
 void
 PrintVisitor::visit (AdditiveExpressionNode* node)
 {
+  ++level;
   printLevel ();
   string op = (node -> addOperator == AdditiveOperatorType::PLUS) ? "+" : "-";
   printArithmeticInfo ("AdditiveExpression", op, node);
@@ -195,6 +210,7 @@ PrintVisitor::visit (AdditiveExpressionNode* node)
 void
 PrintVisitor::visit (MultiplicativeExpressionNode* node)
 {
+  ++level;
   printLevel ();
   string op = (node -> multOperator == MultiplicativeOperatorType::TIMES) ? "*" : "/";
   printArithmeticInfo ("MultiplicativeExpression", op, node);
@@ -203,35 +219,39 @@ PrintVisitor::visit (MultiplicativeExpressionNode* node)
 void
 PrintVisitor::visit (RelationalExpressionNode* node)
 {
+  ++level;
   printLevel ();
   string op = "";
   switch (node -> relationalOperator)
-    {
-    case RelationalOperatorType::LT:
-      op = "<";
-      break;
-    case RelationalOperatorType::LTE:
-      op = "<=";
-      break;
-    case RelationalOperatorType::GT:
-      op = ">";
-      break;
-    case RelationalOperatorType::GTE:
-      op = ">=";
-      break;
-    case RelationalOperatorType::EQ:
-      op = "==";
-      break;
-    case RelationalOperatorType::NEQ:
-      op = "!=";
-      break;
-    }
+  {
+  case RelationalOperatorType::LT:
+    op = "<";
+    break;
+  case RelationalOperatorType::LTE:
+    op = "<=";
+    break;
+  case RelationalOperatorType::GT:
+    op = ">";
+    break;
+  case RelationalOperatorType::GTE:
+    op = ">=";
+    break;
+  case RelationalOperatorType::EQ:
+    op = "==";
+    break;
+  case RelationalOperatorType::NEQ:
+    op = "!=";
+    break;
+  case RelationalOperatorType::ERROR:
+    exit (1);
+  }
   printArithmeticInfo ("RelationalExpression", op, node);
 }
 
 void
 PrintVisitor::visit (UnaryExpressionNode* node)
 {
+  ++level;    
   printLevel ();
   //file << node -> unaryOperator;
   file << node -> variable << endl;
@@ -241,6 +261,7 @@ PrintVisitor::visit (UnaryExpressionNode* node)
 void
 PrintVisitor::visit (IntegerLiteralExpressionNode* node)
 {
+  ++level;
   printLevel ();
   file << "Integer: "<< node -> value << endl;
   --level;
@@ -271,9 +292,8 @@ PrintVisitor::printArithmeticInfo (string nodeType, string op, auto node)
 void
 PrintVisitor::printLevel ()
 {
-  ++ level;
   for (size_t i = 0; i < level; ++i)
-    {
-      file << "|  ";
-    }
+  {
+    file << "  ";
+  }
 }
