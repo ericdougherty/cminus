@@ -8,12 +8,19 @@
 /************************************************************/
 // System includes
 
+#include <iostream>
 #include <cstdlib>
   
 /************************************************************/
 // Local includes
 
 #include "Parser.h"
+
+/************************************************************/
+// Using declarations
+  
+using std::cout;
+using std::endl;
 
 /************************************************************/
 
@@ -31,9 +38,11 @@
     {
       file = stdin;
     }
-    vector<DeclarationNode*> declarations;
-    Parser p(file, declarations);
-    p.parse();
-
+    Parser p(file);
+    if (p.parse())
+    {
+      p.print ();
+      cout << "Program is valid!" << endl;
+    }
     return EXIT_SUCCESS;
   }
