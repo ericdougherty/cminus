@@ -2,23 +2,22 @@
   Filename   : Parser.cc
   Author     : Eric Dougherty
   Course     : CSCI 435
-  Assignment : Lab 9 - Can't Parse This
 */
 
-/***********************************************************************/
+/********************************************************************/
 // System includes
 
 #include <iostream>
 #include <fstream>
 
-/***********************************************************************/
+/********************************************************************/
 // Local includes
 
 #include "Parser.h"
 #include "Ast.h"
 #include "Visitor.h"
 
-/***********************************************************************/
+/********************************************************************/
 // Using declarations
 
 using std::string;
@@ -26,14 +25,14 @@ using std::cout;
 using std::endl;
 using std::ofstream;
 
-/***********************************************************************/
+/********************************************************************/
 // Function prototypes/global vars/typedefs
 
 Parser::Parser (FILE* file)
     :m_lexer (Lexer(file)), m_matchedID(false), ast (ProgramNode())
 { }
 
-/***********************************************************************/
+/********************************************************************/
 
 bool
 Parser::parse ()
@@ -44,7 +43,7 @@ Parser::parse ()
 	return true;
 }
 
-/***********************************************************************/
+/********************************************************************/
 
 void
 Parser::print (string name)
@@ -55,7 +54,7 @@ Parser::print (string name)
 	visitor.file.close ();
 }
 
-/***********************************************************************/
+/********************************************************************/
 
 void 
 Parser::declarations (auto parent)
@@ -296,13 +295,13 @@ Parser::expression ()
 		}
 		else 
 		{
-			m_varNode = var (m_callID);
+			VariableExpressionNode* varNode = m_varNode = var (m_callID);
 
 			if (m_token.type == ASSIGN)
 			{
 				match (ASSIGN, "=", "expression");
 				ExpressionNode* exprNode = expression ();
-				return new AssignmentExpressionNode (m_varNode, exprNode);
+				return new AssignmentExpressionNode (varNode, exprNode);
 			}
 			else
 			{
@@ -508,7 +507,7 @@ Parser::argList (vector<ExpressionNode*> & args)
 	}
 }
 
-/***********************************************************************/
+/********************************************************************/
 
 string 
 Parser::match (Token expectedToken, string possibleTokens, string caller)

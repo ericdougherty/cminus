@@ -2,7 +2,6 @@
   Filename   : Parser.h
   Author     : Eric Dougherty
   Course     : CSCI 435
-  Assignment : Lab 9 - Can't Parse This
 */
 
 /***********************************************************************/

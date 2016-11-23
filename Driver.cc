@@ -1,8 +1,7 @@
 /*
   Filename   : Driver.cc
-  Author     : Eric Dougherty
+  Author     : Eric Dougherty & Ian Murry
   Course     : CSCI 435
-  Assignment : Lab 9 - Can't Parse This
 */
 
 /************************************************************/
