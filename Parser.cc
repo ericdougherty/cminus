@@ -9,6 +9,7 @@
 // System includes
 
 #include <iostream>
+#include <fstream>
 
 /***********************************************************************/
 // Local includes
@@ -23,6 +24,7 @@
 using std::string;
 using std::cout;
 using std::endl;
+using std::ofstream;
 
 /***********************************************************************/
 // Function prototypes/global vars/typedefs
@@ -45,10 +47,12 @@ Parser::parse ()
 /***********************************************************************/
 
 void
-Parser::print ()
+Parser::print (string name)
 {
 	PrintVisitor visitor;
+	visitor.file = ofstream {name + "ast"};
 	ast.accept (&visitor);
+	visitor.file.close ();
 }
 
 /***********************************************************************/
@@ -217,6 +221,7 @@ Parser::statement ()
 		default:
 			error (";', '{',  'if', 'while' or 'return", "statement");
 	}
+	return nullptr;
 }
 
 ExpressionStatementNode*
@@ -283,7 +288,7 @@ Parser::expression ()
 {
 	if (m_token.type == ID)
 	{
-		string id = m_callID = match (ID, "ID", "expression");
+		m_callID = match (ID, "ID", "expression");
 		if (m_token.type == LPAREN)
 		{
 			m_matchedID = true;
@@ -291,13 +296,13 @@ Parser::expression ()
 		}
 		else 
 		{
-			VariableExpressionNode* varNode = m_varNode = var (id);
+			m_varNode = var (m_callID);
 
 			if (m_token.type == ASSIGN)
 			{
 				match (ASSIGN, "=", "expression");
 				ExpressionNode* exprNode = expression ();
-				return new AssignmentExpressionNode (varNode, exprNode);
+				return new AssignmentExpressionNode (m_varNode, exprNode);
 			}
 			else
 			{

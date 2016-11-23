@@ -39,7 +39,7 @@ public:
     parse ();
 
     void
-    print ();
+    print (string name);
 
 private:    
     void
