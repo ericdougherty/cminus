@@ -220,6 +220,7 @@ Parser::statement ()
 		default:
 			error (";', '{',  'if', 'while' or 'return", "statement");
 	}
+	//for warning
 	return nullptr;
 }
 
@@ -371,8 +372,10 @@ Parser::relop ()
 			match (NEQ, "!=", "relop");
 			return RelationalOperatorType::NEQ;
 		default: 
-			break;
+			//for warning
+			return RelationalOperatorType::NEQ;
 	}
+
 }
 
 ExpressionNode*
@@ -473,6 +476,8 @@ Parser::factor ()
 			match (NUM, "num", "factor");
 			return new IntegerLiteralExpressionNode(num);
 		}
+		//for warning
+		return nullptr;
 	}
 }
 
@@ -512,7 +517,7 @@ Parser::argList (vector<ExpressionNode*> & args)
 string 
 Parser::match (Token expectedToken, string possibleTokens, string caller)
 {
-	 if (m_token.type == expectedToken.type)
+	if (m_token.type == expectedToken.type)
 	{
 		string lexeme = m_token.lexeme;
 		m_token = m_lexer.getToken ();
@@ -521,6 +526,7 @@ Parser::match (Token expectedToken, string possibleTokens, string caller)
 	else
 	{
 		error (possibleTokens, caller);
+		return "";
 	}
 }
 

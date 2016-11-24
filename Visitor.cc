@@ -194,7 +194,7 @@ PrintVisitor::visit (AdditiveExpressionNode* node)
   ++level;
   printLevel ();
   string op = (node -> addOperator == AdditiveOperatorType::PLUS) ? "+" : "-";
-  printArithmeticInfo ("AdditiveExpression", op, node);
+  printArithmeticInfo ("Additive Expression", op, node);
 }
 
 void
@@ -203,7 +203,7 @@ PrintVisitor::visit (MultiplicativeExpressionNode* node)
   ++level;
   printLevel ();
   string op = (node -> multOperator == MultiplicativeOperatorType::TIMES) ? "*" : "/";
-  printArithmeticInfo ("MultiplicativeExpression", op, node);
+  printArithmeticInfo ("Multiplicative Expression", op, node);
 }
 
 void
@@ -233,7 +233,7 @@ PrintVisitor::visit (RelationalExpressionNode* node)
     op = "!=";
     break;
   }
-  printArithmeticInfo ("RelationalExpression", op, node);
+  printArithmeticInfo ("Relational Expression", op, node);
 }
 
 void

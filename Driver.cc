@@ -45,12 +45,14 @@ using std::endl;
     else
     {
       file = stdin;
+      name = "Default.";
     }
     Parser p(file);
     if (p.parse())
     {
-      p.print (name);
       cout << "Program is valid!" << endl;
+      cout << "Writing AST to \"" << name << "ast\"" << endl;
+      p.print (name);
     }
     return EXIT_SUCCESS;
   }
