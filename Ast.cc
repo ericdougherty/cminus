@@ -8,7 +8,6 @@
 // Local Includes
 
 #include "Ast.h"
-#include "Visitor.h"
 
 /********************************************************************/
 
@@ -35,7 +34,7 @@ ProgramNode::accept (IVisitor* visitor)
 /********************************************************************/
 
 DeclarationNode::DeclarationNode (ValueType t, string id)
-  :valueType (t), identifier (id)
+  :valueType (t), identifier (id), nestLevel(0)
 {}
 
 DeclarationNode::~DeclarationNode ()
