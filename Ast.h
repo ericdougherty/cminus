@@ -64,39 +64,6 @@ struct RelationalExpressionNode;
 struct IntegerLiteralExpressionNode;
 
 /********************************************************************/
-//  Abstract Classes
-
-class IVisitor
-{
-public:
-    virtual void visit (ProgramNode* node) = 0;
-    
-    virtual void visit (DeclarationNode* node) = 0;
-    virtual void visit (FunctionDeclarationNode* node) = 0;
-    virtual void visit (VariableDeclarationNode* node) = 0;
-    virtual void visit (ArrayDeclarationNode* node) = 0;
-    virtual void visit (ParameterNode* node) = 0;
-    
-    virtual void visit (StatementNode* node) = 0;
-    virtual void visit (CompoundStatementNode* node) = 0;
-    virtual void visit (IfStatementNode* node) = 0;
-    virtual void visit (WhileStatementNode* node) = 0;
-    virtual void visit (ReturnStatementNode* node) = 0;
-    virtual void visit (ExpressionStatementNode* node) = 0;
-    
-    virtual void visit (ExpressionNode* node) = 0;
-    virtual void visit (AssignmentExpressionNode* node) = 0;
-    virtual void visit (VariableExpressionNode* node) = 0;
-    virtual void visit (SubscriptExpressionNode* node) = 0;
-    virtual void visit (CallExpressionNode* node) = 0;
-    virtual void visit (AdditiveExpressionNode* node) = 0;
-    virtual void visit (MultiplicativeExpressionNode* node) = 0;
-    virtual void visit (RelationalExpressionNode* node) = 0;
-    virtual void visit (IntegerLiteralExpressionNode* node) = 0;
-};
-
-
-/********************************************************************/
 //  Enum Classes
 
 enum class AdditiveOperatorType
@@ -122,6 +89,37 @@ enum class UnaryOperatorType
 enum class ValueType
 {
   VOID, INT, ARRAY
+};
+
+/********************************************************************/
+
+class IVisitor
+{
+public:
+  virtual void visit (ProgramNode* node) = 0;
+
+  virtual void visit (DeclarationNode* node) = 0;
+  virtual void visit (FunctionDeclarationNode* node) = 0;
+  virtual void visit (VariableDeclarationNode* node) = 0;
+  virtual void visit (ArrayDeclarationNode* node) = 0;
+  virtual void visit (ParameterNode* node) = 0;
+
+  virtual void visit (StatementNode* node) = 0;
+  virtual void visit (CompoundStatementNode* node) = 0;
+  virtual void visit (IfStatementNode* node) = 0;
+  virtual void visit (WhileStatementNode* node) = 0;
+  virtual void visit (ReturnStatementNode* node) = 0;
+  virtual void visit (ExpressionStatementNode* node) = 0;
+
+  virtual void visit (ExpressionNode* node) = 0;
+  virtual void visit (AssignmentExpressionNode* node) = 0;
+  virtual void visit (VariableExpressionNode* node) = 0;
+  virtual void visit (SubscriptExpressionNode* node) = 0;
+  virtual void visit (CallExpressionNode* node) = 0;
+  virtual void visit (AdditiveExpressionNode* node) = 0;
+  virtual void visit (MultiplicativeExpressionNode* node) = 0;
+  virtual void visit (RelationalExpressionNode* node) = 0;
+  virtual void visit (IntegerLiteralExpressionNode* node) = 0;
 };
 
 /********************************************************************/
@@ -169,7 +167,7 @@ struct DeclarationNode : Node
 struct FunctionDeclarationNode : DeclarationNode
 {
   FunctionDeclarationNode (ValueType t, string id,
-    vector<ParameterNode*> params, CompoundStatementNode* body);
+    vector<ParameterNode*> params = vector<ParameterNode*>(), CompoundStatementNode* body = nullptr);
 
   ~FunctionDeclarationNode ();
 
@@ -324,7 +322,7 @@ struct AssignmentExpressionNode : ExpressionNode
 
 struct VariableExpressionNode : ExpressionNode
 {
-  VariableExpressionNode (string id);
+  VariableExpressionNode (string id, size_t line, size_t col);
 
   ~VariableExpressionNode ();
 
@@ -332,11 +330,14 @@ struct VariableExpressionNode : ExpressionNode
   accept (IVisitor* visitor);
 
   string identifier;
+  DeclarationNode* decl;
+  size_t line;
+  size_t col;
 };
 
 struct SubscriptExpressionNode : VariableExpressionNode
 {
-  SubscriptExpressionNode (string id, ExpressionNode* index);
+  SubscriptExpressionNode (string id, size_t line, size_t col, ExpressionNode* index);
 
   ~SubscriptExpressionNode ();
 
@@ -357,6 +358,7 @@ struct CallExpressionNode : ExpressionNode
 
   string identifier;
   vector<ExpressionNode*> arguments;
+  DeclarationNode*  decl;
 };
 
 struct AdditiveExpressionNode : ExpressionNode

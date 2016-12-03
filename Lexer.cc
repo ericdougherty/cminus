@@ -192,13 +192,13 @@ Lexer::ungetChar (int c)
     --m_columns;
 }
 
-int
+size_t 
 Lexer::getLines ()
 {
     return m_lines;
 }
 
-int
+size_t 
 Lexer::getColumns ()
 {
     return m_columns;

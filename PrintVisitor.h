@@ -10,8 +10,8 @@
 // Fall 2014
 // Fall 2016
 
-#ifndef VISITOR_H
-#define VISITOR_H
+#ifndef PRINTVISITOR_H
+#define PRINTVISITOR_H
 
 /********************************************************************/
 // System includes
@@ -30,6 +30,7 @@ using std::ofstream;
 
 /********************************************************************/
 // Abstract Classes
+
 
 class PrintVisitor : public IVisitor
 {

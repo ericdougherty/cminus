@@ -50,9 +50,13 @@ using std::endl;
     Parser p(file);
     if (p.parse())
     {
-      cout << "Program is valid!" << endl;
-      cout << "Writing AST to \"" << name << "ast\"" << endl;
-      p.print (name);
+      if (p.symbolTable())
+      {
+        cout << "Program is valid!" << endl;
+        cout << "Writing AST to \"" << name << "ast\"" << endl;
+        p.print (name);
+      }
+      
     }
     return EXIT_SUCCESS;
   }
