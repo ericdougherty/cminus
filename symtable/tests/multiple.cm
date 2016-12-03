@@ -1,0 +1,15 @@
+int x;
+int
+add (int a, int b)
+{
+  	int x;
+  	int x;
+  	if (x < 10)
+  	{
+  		int x;
+  	}
+  	else
+  	{
+  		return y + 5;
+  	}
+}
