@@ -13,3 +13,13 @@ add (int a, int b)
   		return y + 5;
   	}
 }
+
+int
+subtract (int x, int y)
+{
+  int y;
+  int w;
+  int z;
+
+  return u + a;
+}

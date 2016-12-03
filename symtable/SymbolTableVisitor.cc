@@ -55,6 +55,7 @@ SymbolTableVisitor::visit (FunctionDeclarationNode* node)
   insert (node);
 
   table.enterScope ();
+  currentFunction = node -> identifier;
   for (auto child : node -> parameters)
   {
     child -> accept (this);
@@ -215,7 +216,7 @@ SymbolTableVisitor::declError(auto node,string errorMessage)
   }
   else
   {
-    cout << "\e[1m" << fileName << ":" << "\e[0m" << " In a Function " << endl;
+    cout << "\e[1m" << fileName << ":" << "\e[0m" << " In Function  " << "\e[1m" << "'" << currentFunction << " ()" << "\e[0m" << "'" << endl;
   }
 
   string type = (node -> valueType == ValueType::INT) ? "int" : "void";
