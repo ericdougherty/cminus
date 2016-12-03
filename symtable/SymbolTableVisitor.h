@@ -59,6 +59,8 @@ public:
 
   int      level;
 
+  string currentFunction;
+
   SymbolTable table;
 
   bool     hasErrors;
