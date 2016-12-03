@@ -1,49 +1,62 @@
-//
-//  SymbolTableVisitor.hpp
-//  SymbolTable
-//
-//  Created by Ian Murry on 11/27/16.
-//
-//
-
-#ifndef SymbolTableVisitor_h
-#define SymbolTableVisitor_h
-/********************************************************************/
-
-#include "Ast.h"
+/*
+  Filename   : Visitor.h
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
 
 /********************************************************************/
+
+#ifndef SYMBOLTABLEVISITOR_H
+#define SYMBOLTABLEVISITOR_H
+
+#include "SymbolTable.h"
 
 class SymbolTableVisitor : public IVisitor
 {
 public:
-    virtual void visit (ProgramNode* node) = 0;
-    
-    virtual void visit (DeclarationNode* node) = 0;
-    virtual void visit (FunctionDeclarationNode* node) = 0;
-    virtual void visit (VariableDeclarationNode* node) = 0;
-    virtual void visit (ArrayDeclarationNode* node) = 0;
-    virtual void visit (ParameterNode* node) = 0;
-    
-    virtual void visit (StatementNode* node) = 0;
-    virtual void visit (CompoundStatementNode* node) = 0;
-    virtual void visit (IfStatementNode* node) = 0;
-    virtual void visit (WhileStatementNode* node) = 0;
-    virtual void visit (ReturnStatementNode* node) = 0;
-    virtual void visit (ExpressionStatementNode* node) = 0;
-    
-    virtual void visit (ExpressionNode* node) = 0;
-    virtual void visit (AssignmentExpressionNode* node) = 0;
-    virtual void visit (VariableExpressionNode* node) = 0;
-    virtual void visit (SubscriptExpressionNode* node) = 0;
-    virtual void visit (CallExpressionNode* node) = 0;
-    virtual void visit (AdditiveExpressionNode* node) = 0;
-    virtual void visit (MultiplicativeExpressionNode* node) = 0;
-    virtual void visit (RelationalExpressionNode* node) = 0;
-    virtual void visit (IntegerLiteralExpressionNode* node) = 0;
+  virtual void visit (ProgramNode* node);
+
+  virtual void visit (DeclarationNode* node){};
+  virtual void visit (FunctionDeclarationNode* node); 
+  virtual void visit (VariableDeclarationNode* node); 
+  virtual void visit (ArrayDeclarationNode* node); 
+  virtual void visit (ParameterNode* node); 
+
+  virtual void visit (StatementNode* node){}; 
+  virtual void visit (CompoundStatementNode* node); 
+  virtual void visit (IfStatementNode* node); 
+  virtual void visit (WhileStatementNode* node);
+  virtual void visit (ReturnStatementNode* node); 
+  virtual void visit (ExpressionStatementNode* node); 
+
+  virtual void visit (ExpressionNode* node){}; 
+  virtual void visit (AssignmentExpressionNode* node); 
+  virtual void visit (VariableExpressionNode* node); 
+  virtual void visit (SubscriptExpressionNode* node); 
+  virtual void visit (CallExpressionNode* node); 
+  virtual void visit (AdditiveExpressionNode* node); 
+  virtual void visit (MultiplicativeExpressionNode* node);
+  virtual void visit (RelationalExpressionNode* node);
+  virtual void visit (IntegerLiteralExpressionNode* node){};
+
+  int
+  getLevel();
+
+  void
+  error(auto node, string errorMessage);
+
+  bool
+  getErrors();
+
+  void
+  insert (auto node);
+
+  void
+  lookup(auto node, string ifError);
+
+  int      level;
+  SymbolTable table;
+  bool     hasErrors;
 };
 
-
-/********************************************************************/
-
-#endif /* SymbolTableVisitor_h */
+#endif

@@ -40,6 +40,9 @@ public:
     void
     print (string name);
 
+    bool
+    symbolTable ();
+
 private:    
     void
     declarations (auto parent);
@@ -127,8 +130,6 @@ private:
     
     void
     error (string possibleTokens, string caller);
-
-    
 
 private:
     Lexer   m_lexer;

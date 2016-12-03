@@ -69,10 +69,10 @@ public:
     Token
     getToken ();
 
-    int 
+    size_t 
     getLines ();
 
-    int 
+    size_t  
     getColumns ();
 
 private:
@@ -100,8 +100,8 @@ private:
 private:
     FILE* m_sourceFile;
     int   m_nextChar;
-    int   m_lines;
-    int   m_columns;
+    size_t    m_lines;
+    size_t    m_columns;
     const map<string, TokenType> m_keywords = { {"if", IF}, {"else", ELSE}, {"int", INT}, {"void", VOID}, {"return", RETURN}, {"while", WHILE} };
 
 };

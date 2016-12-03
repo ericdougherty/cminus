@@ -31,7 +31,7 @@ LDPATHS :=
 LDLIBS :=
 #LDLIBS := -lpthread -lboost_mpi -lboost_serialization
 
-OBJS := Lexer.o Parser.o Driver.o Ast.o Visitor.o
+OBJS := Lexer.o Parser.o Driver.o Ast.o PrintVisitor.o SymbolTable.o SymbolTableVisitor.o
 
 #############################################################
 # Rules
@@ -45,13 +45,17 @@ Driver : $(OBJS)
 
 Lexer.o : Lexer.cc Lexer.h
 
-Parser.o : Parser.cc Parser.h Ast.h Visitor.h
+Parser.o : Parser.cc Parser.h Ast.h PrintVisitor.h
 
 Driver.o : Driver.cc Parser.h
 
-Ast.o : Ast.cc Ast.h Visitor.h
+Ast.o : Ast.cc Ast.h
 
-Visitor.o : Visitor.cc Visitor.h
+PrintVisitor.o : PrintVisitor.cc PrintVisitor.h
+
+SymbolTableVisitor.o : SymbolTableVisitor.cc SymbolTableVisitor.h
+
+SymbolTable.o : SymbolTable.cc SymbolTable.h
 
 #############################################################
 # Type "make clean" to delete executables, object files,

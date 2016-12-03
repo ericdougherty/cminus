@@ -14,8 +14,8 @@
 // Local includes
 
 #include "Parser.h"
-#include "Ast.h"
-#include "Visitor.h"
+#include "PrintVisitor.h"
+#include "SymbolTableVisitor.h"
 
 /********************************************************************/
 // Using declarations
@@ -52,6 +52,16 @@ Parser::print (string name)
 	visitor.file = ofstream {name + "ast"};
 	ast.accept (&visitor);
 	visitor.file.close ();
+}
+
+/********************************************************************/
+
+bool
+Parser::symbolTable ()
+{
+	SymbolTableVisitor visitor;
+	ast.accept (&visitor);
+	return !visitor.getErrors();
 }
 
 /********************************************************************/
@@ -325,11 +335,11 @@ Parser::var (string id)
 		match (LBRACK, "[", "var");
 		ExpressionNode* expr = expression ();
 		match (RBRACK, "]", "var");
-		varNode = new SubscriptExpressionNode(id, expr);
+		varNode = new SubscriptExpressionNode(id, m_lexer.getLines (), m_lexer.getColumns (), expr);
 	}
 	else
 	{
-		varNode = new VariableExpressionNode(id);
+		varNode = new VariableExpressionNode(id, m_lexer.getLines (), m_lexer.getColumns ());
 	}
 	return varNode;
 }

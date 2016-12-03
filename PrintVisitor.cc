@@ -155,7 +155,8 @@ PrintVisitor::visit (VariableExpressionNode* node)
 {
   ++level;
   printLevel ();
-  file << "Variable: " << node -> identifier << endl;
+  string type = (node -> decl -> valueType == ValueType::INT) ? "Int" : "Void";
+  file << "Variable: " << node -> identifier << ": " << type << " type" << endl;
   --level;
 }
 
@@ -164,7 +165,8 @@ PrintVisitor::visit (SubscriptExpressionNode* node)
 {
   ++level;
   printLevel ();
-  file << "Subscript: " << node -> identifier << endl;
+  string type = (node -> decl -> valueType == ValueType::INT) ? "Int" : "Void";
+  file << "Subscript: " << node -> identifier << ": " << type << " type" << endl;
   ++level;
   printLevel ();
   file << "Index:" << endl;
@@ -177,7 +179,8 @@ PrintVisitor::visit (CallExpressionNode* node)
 {
   ++level;
   printLevel ();
-  file << "Function Call: " << node -> identifier << endl;
+  string type = (node -> decl -> valueType == ValueType::INT) ? "Int" : "Void";
+  file << "Function Call: " << node -> identifier << ": " << type << " type" << endl;
   ++level;
   printLevel ();
   file << "Arguments:" << endl;
@@ -251,7 +254,7 @@ void
 PrintVisitor::printNodeInfo (string nodeType, auto node)
 {
   file << nodeType << ": " << node -> identifier << ": ";
-  string type = (node -> valueType == ValueType::INT) ? "Int" : "void";
+  string type = (node -> valueType == ValueType::INT) ? "Int" : "Void";
   file << type << " type" << endl;
 }
 

@@ -16,7 +16,8 @@ Node::~Node ()
 
 /********************************************************************/
 
-ProgramNode::ProgramNode (){}
+ProgramNode::ProgramNode ()
+{}
 
 ProgramNode::~ProgramNode()
 {
@@ -34,7 +35,7 @@ ProgramNode::accept (IVisitor* visitor)
 /********************************************************************/
 
 DeclarationNode::DeclarationNode (ValueType t, string id)
-  :valueType (t), identifier (id), nestLevel(0)
+  :valueType (t), identifier (id)
 {}
 
 DeclarationNode::~DeclarationNode ()
@@ -62,7 +63,6 @@ FunctionDeclarationNode::FunctionDeclarationNode (ValueType t, string id,
                           vector<ParameterNode*> params, CompoundStatementNode* body)
   :DeclarationNode (t, id), parameters (params), functionBody(body)
 {}
-
 
 FunctionDeclarationNode::~FunctionDeclarationNode()
 {
@@ -230,8 +230,8 @@ AssignmentExpressionNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-VariableExpressionNode::VariableExpressionNode (string id)
-  :identifier (id)
+VariableExpressionNode::VariableExpressionNode (string id, size_t line, size_t col)
+  :identifier (id), line (line), col (col)
 {}
 
 VariableExpressionNode::~VariableExpressionNode ()
@@ -245,8 +245,8 @@ VariableExpressionNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-SubscriptExpressionNode::SubscriptExpressionNode (string id, ExpressionNode* index)
-  :VariableExpressionNode(id), index (index)
+SubscriptExpressionNode::SubscriptExpressionNode (string id, size_t line, size_t col, ExpressionNode* index)
+  :VariableExpressionNode(id, line, col), index (index)
 {}
 
 SubscriptExpressionNode::~SubscriptExpressionNode ()
@@ -276,6 +276,7 @@ CallExpressionNode::accept (IVisitor* visitor)
 {
   visitor -> visit (this);
 }
+
 /********************************************************************/
 
 AdditiveExpressionNode::AdditiveExpressionNode (AdditiveOperatorType addop,
