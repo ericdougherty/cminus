@@ -131,6 +131,8 @@ private:
     void
     error (string possibleTokens, string caller);
 
+    
+
 private:
     Lexer   m_lexer;
     Token   m_token;

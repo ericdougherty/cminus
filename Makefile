@@ -15,8 +15,8 @@ INCDIRS  :=
 
 # C++ compiler flags
 # Use the first for debugging, the second for release
-CXXFLAGS := -g -Wall -std=c++14 $(INCDIRS) 
-#CXXFLAGS := -O3 -Wall -std=c++14 $(INCDIRS) 
+#CXXFLAGS := -g -Wall -std=c++14 $(INCDIRS) 
+CXXFLAGS := -O3 -Wall -std=c++14 $(INCDIRS) 
 
 # Linker. For C++ should be $(CXX).
 LINK := $(CXX)
@@ -31,7 +31,7 @@ LDPATHS :=
 LDLIBS :=
 #LDLIBS := -lpthread -lboost_mpi -lboost_serialization
 
-OBJS := Lexer.o Parser.o Driver.o Ast.o PrintVisitor.o SymbolTable.o SymbolTableVisitor.o
+OBJS := CMinusLexer.o CMinusParser.o CMinusDriver.o Ast.o PrintVisitor.o SymbolTable.o SymbolTableVisitor.o
 
 #############################################################
 # Rules
@@ -40,14 +40,14 @@ OBJS := Lexer.o Parser.o Driver.o Ast.o PrintVisitor.o SymbolTable.o SymbolTable
 #   	  recipe
 #############################################################
 
-Driver : $(OBJS)
+CMinusDriver : $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o cmin
 
-Lexer.o : Lexer.cc Lexer.h
+CMinusLexer.o : CMinusLexer.cc CMinusLexer.h
 
-Parser.o : Parser.cc Parser.h Ast.h PrintVisitor.h
+CMinusParser.o : CMinusParser.cc CMinusParser.h Ast.h PrintVisitor.h
 
-Driver.o : Driver.cc Parser.h
+CMinusDriver.o : CMinusDriver.cc CMinusLexer.h CMinusParser.h
 
 Ast.o : Ast.cc Ast.h
 

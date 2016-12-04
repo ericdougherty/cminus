@@ -1,5 +1,5 @@
 /*
-  Filename   : Visitor.h
+  Filename   : SymbolTableVisitor.h
   Author     : Eric Dougherty & Ian Murry
   Course     : CSCI 435
 */
@@ -14,6 +14,7 @@
 class SymbolTableVisitor : public IVisitor
 {
 public:
+  //Virtual Functions
   virtual void visit (ProgramNode* node);
 
   virtual void visit (DeclarationNode* node){};
@@ -39,24 +40,59 @@ public:
   virtual void visit (RelationalExpressionNode* node);
   virtual void visit (IntegerLiteralExpressionNode* node){};
 
+  // Non-Derived Functions
   int
   getLevel();
 
   void
-  error(auto node, string errorMessage);
+  declError(auto node, string errorMessage);
+  
+  void
+  useError(auto node,string errorMessage);
 
   bool
-  getErrors();
+  getErrors() ;
 
   void
   insert (auto node);
 
   void
-  lookup(auto node, string ifError);
+  lookup (auto node, string ifError);
 
+  void
+  setUpIOFunctions ();
+
+  void
+  startBold ();
+
+  void 
+  endBold ();
+
+  void
+  errorIsInGlobalScope ();
+
+  void
+  errorIsInAFunctionsScope ();
+
+  void
+  printLineAndColumnInfo (auto node);
+
+  void
+  printDeclErrorInfo (auto node, bool ifPrevious, string errorMessage);
+
+  //Non Derived Member Variables
   int      level;
+
+  string currentFunctionName;
+  ValueType currentFunctionType;
+
   SymbolTable table;
+
   bool     hasErrors;
+
+  std::string fileName;
+ 
+
 };
 
 #endif

@@ -1,0 +1,207 @@
+Program Node:
+|  Variable Declaration: x[20]: Int type
+|  Function: continueSorting: Int type
+|  |  Parameter: a[]: Int type
+|  |  Parameter: index: Int type
+|  |  Parameter: temp: Int type
+|  |  Compound Statement:
+|  |  |  Variable Declaration: keepGoing: Int type
+|  |  |  If
+|  |  |  |  Relational Expression: >=
+|  |  |  |  |  Left:
+|  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  Right:
+|  |  |  |  |  |  Integer: 1
+|  |  |  |  Compound Statement:
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: keepGoing: Int type
+|  |  |  |  |  |  |  Integer: 1
+|  |  |  |  If
+|  |  |  |  |  Relational Expression: <
+|  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  Variable: temp: Int type
+|  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  Subscript: x: Int type
+|  |  |  |  |  |  |  |  Index:
+|  |  |  |  |  |  |  |  |  Additive Expression: -
+|  |  |  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  |  |  Integer: 1
+|  |  |  |  |  Compound Statement:
+|  |  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  |  Variable: keepGoing: Int type
+|  |  |  |  |  |  |  |  Integer: 1
+|  |  |  |  |  Compound Statement:
+|  |  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  |  Variable: keepGoing: Int type
+|  |  |  |  |  |  |  |  Integer: 0
+|  |  |  Return
+|  |  |  |  Variable: keepGoing: Int type
+|  Function: sort: Void type
+|  |  Parameter: a[]: Int type
+|  |  Parameter: size: Int type
+|  |  Compound Statement:
+|  |  |  Variable Declaration: temp: Int type
+|  |  |  Variable Declaration: currentIndex: Int type
+|  |  |  Variable Declaration: index: Int type
+|  |  |  Variable Declaration: keepGoing: Int type
+|  |  |  Expression Statement: 
+|  |  |  |  Assignment:
+|  |  |  |  |  Variable: keepGoing: Int type
+|  |  |  |  |  Integer: 1
+|  |  |  Expression Statement: 
+|  |  |  |  Assignment:
+|  |  |  |  |  Variable: currentIndex: Int type
+|  |  |  |  |  Integer: 1
+|  |  |  While
+|  |  |  |  Relational Expression: <
+|  |  |  |  |  Left:
+|  |  |  |  |  |  Variable: currentIndex: Int type
+|  |  |  |  |  Right:
+|  |  |  |  |  |  Variable: size: Int type
+|  |  |  |  Compound Statement:
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: temp: Int type
+|  |  |  |  |  |  |  Subscript: x: Int type
+|  |  |  |  |  |  |  |  Index:
+|  |  |  |  |  |  |  |  |  Variable: currentIndex: Int type
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  |  |  Variable: currentIndex: Int type
+|  |  |  |  |  While
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: keepGoing: Int type
+|  |  |  |  |  |  |  Relational Expression: ==
+|  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  Function Call: continueSorting: Int type
+|  |  |  |  |  |  |  |  |  |  Arguments:
+|  |  |  |  |  |  |  |  |  |  |  Variable: x: Int type
+|  |  |  |  |  |  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  |  |  |  |  |  |  Variable: temp: Int type
+|  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  Integer: 1
+|  |  |  |  |  |  Compound Statement:
+|  |  |  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  |  |  Subscript: x: Int type
+|  |  |  |  |  |  |  |  |  |  Index:
+|  |  |  |  |  |  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  |  |  |  |  Subscript: x: Int type
+|  |  |  |  |  |  |  |  |  |  Index:
+|  |  |  |  |  |  |  |  |  |  |  Additive Expression: -
+|  |  |  |  |  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  |  |  |  |  Integer: 1
+|  |  |  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  |  |  |  |  Additive Expression: -
+|  |  |  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  |  |  Integer: 1
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: keepGoing: Int type
+|  |  |  |  |  |  |  Integer: 1
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Subscript: x: Int type
+|  |  |  |  |  |  |  |  Index:
+|  |  |  |  |  |  |  |  |  Variable: index: Int type
+|  |  |  |  |  |  |  Variable: temp: Int type
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: currentIndex: Int type
+|  |  |  |  |  |  |  Additive Expression: +
+|  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  Variable: currentIndex: Int type
+|  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  Integer: 1
+|  Function: main: Void type
+|  |  Compound Statement:
+|  |  |  Variable Declaration: size: Int type
+|  |  |  Variable Declaration: i: Int type
+|  |  |  Variable Declaration: num: Int type
+|  |  |  Expression Statement: 
+|  |  |  |  Assignment:
+|  |  |  |  |  Variable: size: Int type
+|  |  |  |  |  Integer: 20
+|  |  |  Expression Statement: 
+|  |  |  |  Assignment:
+|  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  Variable: size: Int type
+|  |  |  Expression Statement: 
+|  |  |  |  Assignment:
+|  |  |  |  |  Variable: num: Int type
+|  |  |  |  |  Integer: 0
+|  |  |  While
+|  |  |  |  Relational Expression: >
+|  |  |  |  |  Left:
+|  |  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  Right:
+|  |  |  |  |  |  Integer: 0
+|  |  |  |  Compound Statement:
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Subscript: x: Int type
+|  |  |  |  |  |  |  |  Index:
+|  |  |  |  |  |  |  |  |  Additive Expression: -
+|  |  |  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  |  |  Integer: 1
+|  |  |  |  |  |  |  Variable: num: Int type
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  |  |  Additive Expression: -
+|  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  Integer: 1
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: num: Int type
+|  |  |  |  |  |  |  Additive Expression: +
+|  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  Variable: num: Int type
+|  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  Integer: 1
+|  |  |  Expression Statement: 
+|  |  |  |  Function Call: sort: Void type
+|  |  |  |  |  Arguments:
+|  |  |  |  |  |  Variable: x: Int type
+|  |  |  |  |  |  Variable: size: Int type
+|  |  |  Expression Statement: 
+|  |  |  |  Assignment:
+|  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  Integer: 0
+|  |  |  While
+|  |  |  |  Relational Expression: <
+|  |  |  |  |  Left:
+|  |  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  Right:
+|  |  |  |  |  |  Variable: size: Int type
+|  |  |  |  Compound Statement:
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Function Call: output: Void type
+|  |  |  |  |  |  |  Arguments:
+|  |  |  |  |  |  |  |  Subscript: x: Int type
+|  |  |  |  |  |  |  |  |  Index:
+|  |  |  |  |  |  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  Expression Statement: 
+|  |  |  |  |  |  Assignment:
+|  |  |  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  |  |  Additive Expression: +
+|  |  |  |  |  |  |  |  Left:
+|  |  |  |  |  |  |  |  |  Variable: i: Int type
+|  |  |  |  |  |  |  |  Right:
+|  |  |  |  |  |  |  |  |  Integer: 1

@@ -34,8 +34,8 @@ ProgramNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-DeclarationNode::DeclarationNode (ValueType t, string id)
-  :valueType (t), identifier (id)
+DeclarationNode::DeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum)
+  :valueType (t), identifier (id), lineNum(lineNum), colNum(colNum)
 {}
 
 DeclarationNode::~DeclarationNode ()
@@ -43,8 +43,8 @@ DeclarationNode::~DeclarationNode ()
 
 /********************************************************************/
 
-VariableDeclarationNode::VariableDeclarationNode (ValueType t, string id)
-  :DeclarationNode (t, id)
+VariableDeclarationNode::VariableDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum)
+  :DeclarationNode (t, id, lineNum, colNum)
 {}
 
 
@@ -59,9 +59,9 @@ VariableDeclarationNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-FunctionDeclarationNode::FunctionDeclarationNode (ValueType t, string id,
+FunctionDeclarationNode::FunctionDeclarationNode (ValueType t, string id,  size_t lineNum, size_t colNum,
                           vector<ParameterNode*> params, CompoundStatementNode* body)
-  :DeclarationNode (t, id), parameters (params), functionBody(body)
+  :DeclarationNode (t, id, lineNum, colNum), parameters (params), functionBody(body)
 {}
 
 FunctionDeclarationNode::~FunctionDeclarationNode()
@@ -79,8 +79,8 @@ FunctionDeclarationNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-ArrayDeclarationNode::ArrayDeclarationNode (ValueType t, string id, size_t size)
-  :VariableDeclarationNode (t, id), size (size)
+ArrayDeclarationNode::ArrayDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, size_t size)
+  :VariableDeclarationNode (t, id, lineNum, colNum), size (size)
 {}
 
 
@@ -94,8 +94,8 @@ ArrayDeclarationNode::accept (IVisitor* visitor)
 }
 
 /********************************************************************/
-ParameterNode::ParameterNode (ValueType t, string id, bool isArray)
-  :DeclarationNode (t, id), isArray (isArray)
+ParameterNode::ParameterNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray)
+  :DeclarationNode (t, id, lineNum, colNum ), isArray (isArray)
 {}
 
 
@@ -230,8 +230,8 @@ AssignmentExpressionNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-VariableExpressionNode::VariableExpressionNode (string id, size_t line, size_t col)
-  :identifier (id), line (line), col (col)
+VariableExpressionNode::VariableExpressionNode (string id, size_t lineNum, size_t colNum)
+  :identifier (id), lineNum (lineNum), colNum (colNum)
 {}
 
 VariableExpressionNode::~VariableExpressionNode ()
@@ -245,8 +245,8 @@ VariableExpressionNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-SubscriptExpressionNode::SubscriptExpressionNode (string id, size_t line, size_t col, ExpressionNode* index)
-  :VariableExpressionNode(id, line, col), index (index)
+SubscriptExpressionNode::SubscriptExpressionNode (string id, ExpressionNode* index, size_t lineNum, size_t colNum)
+  :VariableExpressionNode(id, lineNum, colNum), index (index)
 {}
 
 SubscriptExpressionNode::~SubscriptExpressionNode ()
@@ -260,8 +260,8 @@ SubscriptExpressionNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-CallExpressionNode::CallExpressionNode (string id, vector<ExpressionNode*> args)
-  :identifier (id), arguments (args)
+CallExpressionNode::CallExpressionNode (string id, vector<ExpressionNode*> args, size_t lineNum, size_t colNum)
+  :identifier (id), arguments (args), lineNum (lineNum), colNum (colNum)
 {}
 
 CallExpressionNode::~CallExpressionNode ()

@@ -78,3 +78,13 @@ SymbolTable::getLevel()
 }
 
 /********************************************************************/
+
+DeclarationNode*
+SymbolTable::getPreviousDeclaration (string name, size_t nestLevel)
+{
+    auto node = m_table[nestLevel] -> find (name);
+    return node -> second;
+}
+
+/********************************************************************/
+

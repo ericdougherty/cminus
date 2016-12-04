@@ -48,6 +48,10 @@ public:
   int
   getLevel();
 
+  DeclarationNode*
+  getPreviousDeclaration (string name, size_t nestLevel);
+
+
 private:
   
   int  m_nestLevel;

@@ -78,7 +78,7 @@ enum class MultiplicativeOperatorType
 
 enum class RelationalOperatorType
 {
-  LT, LTE, GT, GTE, EQ, NEQ
+  LT, LTE, GT, GTE, EQ, NEQ, ERROR
 };
 
 enum class UnaryOperatorType
@@ -149,7 +149,7 @@ struct ProgramNode : Node
 
 struct DeclarationNode : Node
 {
-  DeclarationNode (ValueType t, string id);
+  DeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum);
 
   ~DeclarationNode ();
 
@@ -158,6 +158,7 @@ struct DeclarationNode : Node
 
   ValueType valueType;
   string identifier;
+  size_t lineNum, colNum;
 
   // Set when the symbol table is built
   // Used for code gen
@@ -166,7 +167,7 @@ struct DeclarationNode : Node
 
 struct FunctionDeclarationNode : DeclarationNode
 {
-  FunctionDeclarationNode (ValueType t, string id,
+  FunctionDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum,
     vector<ParameterNode*> params = vector<ParameterNode*>(), CompoundStatementNode* body = nullptr);
 
   ~FunctionDeclarationNode ();
@@ -180,7 +181,7 @@ struct FunctionDeclarationNode : DeclarationNode
 
 struct VariableDeclarationNode : DeclarationNode
 {
-  VariableDeclarationNode (ValueType t, string id);
+  VariableDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum);
 
   ~VariableDeclarationNode ();
 
@@ -195,7 +196,7 @@ struct VariableDeclarationNode : DeclarationNode
 
 struct ArrayDeclarationNode : VariableDeclarationNode
 {
-  ArrayDeclarationNode (ValueType t, string id, size_t size);
+  ArrayDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, size_t size);
 
   ~ArrayDeclarationNode ();
 
@@ -207,7 +208,7 @@ struct ArrayDeclarationNode : VariableDeclarationNode
 
 struct ParameterNode : DeclarationNode
 {
-  ParameterNode (ValueType t, string id, bool isArray);
+  ParameterNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray);
 
   ~ParameterNode ();
 
@@ -322,7 +323,7 @@ struct AssignmentExpressionNode : ExpressionNode
 
 struct VariableExpressionNode : ExpressionNode
 {
-  VariableExpressionNode (string id, size_t line, size_t col);
+  VariableExpressionNode (string id, size_t lineNum, size_t colNum);
 
   ~VariableExpressionNode ();
 
@@ -331,13 +332,13 @@ struct VariableExpressionNode : ExpressionNode
 
   string identifier;
   DeclarationNode* decl;
-  size_t line;
-  size_t col;
+  size_t lineNum, colNum;
+
 };
 
 struct SubscriptExpressionNode : VariableExpressionNode
 {
-  SubscriptExpressionNode (string id, size_t line, size_t col, ExpressionNode* index);
+  SubscriptExpressionNode (string id, ExpressionNode* index, size_t lineNum, size_t colNum);
 
   ~SubscriptExpressionNode ();
 
@@ -349,7 +350,7 @@ struct SubscriptExpressionNode : VariableExpressionNode
 
 struct CallExpressionNode : ExpressionNode
 {
-  CallExpressionNode (string id, vector<ExpressionNode*> args);
+  CallExpressionNode (string id, vector<ExpressionNode*> args, size_t lineNum, size_t colNum);
 
   ~CallExpressionNode ();
 
@@ -359,6 +360,7 @@ struct CallExpressionNode : ExpressionNode
   string identifier;
   vector<ExpressionNode*> arguments;
   DeclarationNode*  decl;
+  size_t lineNum, colNum;
 };
 
 struct AdditiveExpressionNode : ExpressionNode

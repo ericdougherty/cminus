@@ -96,7 +96,7 @@ Parser::variableDeclaration (ValueType type, string id, auto parent)
 	if (m_token.type == SEMI)
 	{
 		match (SEMI, ";' or '[", "variableDeclaration");
-		varDecl = new VariableDeclarationNode(type, id);
+		varDecl = new VariableDeclarationNode(type, id, m_lexer.getLines (), m_lexer.getColumns ());
 	}
 	else
 	{
@@ -105,7 +105,7 @@ Parser::variableDeclaration (ValueType type, string id, auto parent)
 		match (NUM, "num", "variableDeclaration");
 		match (RBRACK, "]", "variableDeclaration");
 		match (SEMI, ";", "variableDeclaration");
-		varDecl = new ArrayDeclarationNode(type, id, size);
+		varDecl = new ArrayDeclarationNode(type, id, m_lexer.getLines (), m_lexer.getColumns (), size);
 	}
 	parent -> declarations.push_back (varDecl);
 }
@@ -133,7 +133,7 @@ Parser::functionDeclaration (ValueType type, string id)
 	params (paramVec);
 	match (RPAREN, ")", "functionDeclaration");
 	CompoundStatementNode* body = compoundStmt ();
-	FunctionDeclarationNode* funDecl = new FunctionDeclarationNode(type, id, paramVec, body);
+	FunctionDeclarationNode* funDecl = new FunctionDeclarationNode(type, id, m_lexer.getLines (), m_lexer.getColumns (), paramVec, body);
 	ast.declarations.push_back (funDecl);
 }
 
@@ -173,7 +173,7 @@ Parser::param (vector<ParameterNode*> & paramVec)
 		match (RBRACK, "]", "param");
 		isArray = true;
 	}
-	ParameterNode* parameter = new ParameterNode(valueType, id, isArray);
+	ParameterNode* parameter = new ParameterNode(valueType, id, m_lexer.getLines (), m_lexer.getColumns (), isArray);
 	paramVec.push_back (parameter);
 }
 
@@ -335,11 +335,11 @@ Parser::var (string id)
 		match (LBRACK, "[", "var");
 		ExpressionNode* expr = expression ();
 		match (RBRACK, "]", "var");
-		varNode = new SubscriptExpressionNode(id, m_lexer.getLines (), m_lexer.getColumns (), expr);
+		varNode = new SubscriptExpressionNode(id, expr);
 	}
 	else
 	{
-		varNode = new VariableExpressionNode(id, m_lexer.getLines (), m_lexer.getColumns ());
+		varNode = new VariableExpressionNode(id);
 	}
 	return varNode;
 }

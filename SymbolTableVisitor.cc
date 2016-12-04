@@ -1,5 +1,5 @@
 /*
-  Filename   : Visitor.cc
+  Filename   : SymbolTableVisitor.cc
   Author     : Eric Dougherty & Ian Murry
   Course     : CSCI 435
 */
@@ -26,10 +26,8 @@ void
 SymbolTableVisitor::visit (ProgramNode* node)
 {
   table.enterScope ();
-  FunctionDeclarationNode* input  = new FunctionDeclarationNode(ValueType::VOID, "input");
-  FunctionDeclarationNode* output = new FunctionDeclarationNode(ValueType::VOID, "output");
-  insert(input);
-  insert(output);
+  setUpIOFunctions ();
+
   for (auto child : node -> declarations)
   {
     child -> accept (this);
@@ -37,41 +35,50 @@ SymbolTableVisitor::visit (ProgramNode* node)
   table.exitScope ();
 }
 
+/********************************************************************/
+
 void
 SymbolTableVisitor::visit (VariableDeclarationNode* node)
 {
-  node -> nestLevel = table.getLevel ();
   insert (node);
 }
+
+/********************************************************************/
 
 void
 SymbolTableVisitor::visit (FunctionDeclarationNode* node)
 {
-	node -> nestLevel = table.getLevel();
   insert (node);
-	table.enterScope ();
+
+  table.enterScope ();
+  currentFunctionName = node -> identifier;
+  currentFunctionType = node -> valueType;
+
   for (auto child : node -> parameters)
   {
-
     child -> accept (this);
   }
   node -> functionBody -> accept (this);
   table.exitScope ();
 }
 
+/********************************************************************/
+
 void
 SymbolTableVisitor::visit (ArrayDeclarationNode* node)
 {
-  node -> nestLevel = table.getLevel();
   insert (node);
 }
+
+/********************************************************************/
 
 void
 SymbolTableVisitor::visit (ParameterNode* node)
 {
-  node -> nestLevel = table.getLevel();
   insert (node);
 }
+
+/********************************************************************/
 
 void
 SymbolTableVisitor::visit (CompoundStatementNode* node)
@@ -87,6 +94,8 @@ SymbolTableVisitor::visit (CompoundStatementNode* node)
   }
 }
 
+/********************************************************************/
+
 void
 SymbolTableVisitor::visit (IfStatementNode* node)
 {
@@ -99,6 +108,8 @@ SymbolTableVisitor::visit (IfStatementNode* node)
   table.exitScope ();
 }
 
+/********************************************************************/
+
 void
 SymbolTableVisitor::visit (WhileStatementNode* node)
 {
@@ -108,17 +119,23 @@ SymbolTableVisitor::visit (WhileStatementNode* node)
   table.exitScope ();
 }
 
+/********************************************************************/
+
 void
 SymbolTableVisitor::visit (ReturnStatementNode* node)
 {
   node -> expression -> accept (this);
 }
 
+/********************************************************************/
+
 void
 SymbolTableVisitor::visit (ExpressionStatementNode* node)
 {
   node -> expression -> accept (this);
 }
+
+/********************************************************************/
 
 void
 SymbolTableVisitor::visit (AssignmentExpressionNode* node)
@@ -127,29 +144,37 @@ SymbolTableVisitor::visit (AssignmentExpressionNode* node)
   node -> expression -> accept (this);
 }
 
+/********************************************************************/
+
 void
 SymbolTableVisitor::visit (VariableExpressionNode* node)
 {
-lookup (node, " variable has not been declared.");
+lookup (node, "variable");
 }
+
+/********************************************************************/
 
 void
 SymbolTableVisitor::visit (SubscriptExpressionNode* node)
 {
-  lookup (node, " array has not been declared.");
+  lookup (node, "array");
   node -> index -> accept (this);
 }
+
+/********************************************************************/
 
 void
 SymbolTableVisitor::visit (CallExpressionNode* node)
 {
 
-  lookup (node, " function has not been declared.");
+  lookup (node, "function");
   for (auto child : node -> arguments)
   {
     child -> accept (this);
   }
 }
+
+/********************************************************************/
 
 void
 SymbolTableVisitor::visit (AdditiveExpressionNode* node)
@@ -158,12 +183,16 @@ SymbolTableVisitor::visit (AdditiveExpressionNode* node)
   node -> right -> accept (this);
 }
 
+/********************************************************************/
+
 void
 SymbolTableVisitor::visit (MultiplicativeExpressionNode* node)
 {
   node -> left -> accept (this);
   node -> right -> accept (this);
 }
+
+/********************************************************************/
 
 void
 SymbolTableVisitor::visit (RelationalExpressionNode* node)
@@ -172,10 +201,44 @@ SymbolTableVisitor::visit (RelationalExpressionNode* node)
   node -> right -> accept (this);
 }
 
+/********************************************************************/
+
 void
-SymbolTableVisitor::error(auto node,string errorMessage)
+SymbolTableVisitor::declError(auto node,string errorMessage)
 {
-  cout << node -> identifier << errorMessage << endl;
+  if(node -> nestLevel == 0)
+  {
+    errorIsInGlobalScope ();
+  }
+  else
+  {
+   errorIsInAFunctionsScope ();
+  }
+
+  printDeclErrorInfo(node, false, errorMessage);
+  auto prevNode = table.getPreviousDeclaration (node -> identifier, node -> nestLevel);
+  printDeclErrorInfo (prevNode, true, " previously declared here\n");
+
+  hasErrors = true;
+}
+
+/********************************************************************/
+
+void
+SymbolTableVisitor::useError(auto node, string errorMessage)
+{
+  printLineAndColumnInfo (node);
+  
+  // print error in red
+  cout <<  "\e[1;31merror: \e[0m";
+  cout <<  errorMessage;
+  
+  startBold (); 
+  cout << " '" << node -> identifier << "'";
+  endBold ();
+
+  cout << " was not declared in this scope\n" << endl;
+  
   hasErrors = true;
 }
 
@@ -192,9 +255,11 @@ SymbolTableVisitor::getErrors()
 void
 SymbolTableVisitor::insert (auto node)
 {
+  node -> nestLevel = table.getLevel ();
+
   if (!table.insert (node))
   {
-    error(node, " on line ?? has already been declared");
+    declError(node, "Redeclaration of variable ");
   }
 }
 
@@ -206,10 +271,111 @@ SymbolTableVisitor::insert (auto node)
   DeclarationNode* retNode = table.lookup(node -> identifier);
   if (retNode == nullptr)
   {
-    error(node, ifError);
+    useError(node, ifError);
   }
   else
   {
     node -> decl = retNode;
+  }
+}
+
+/********************************************************************/
+
+void
+SymbolTableVisitor::setUpIOFunctions ()
+{
+  auto input  = new FunctionDeclarationNode(ValueType::VOID, "input",0,0);
+  auto output = new FunctionDeclarationNode(ValueType::VOID, "output",0,0);
+  insert(input);
+  insert(output);
+}
+/********************************************************************/
+
+void
+SymbolTableVisitor::startBold ()
+{
+cout << "\e[1m";
+}
+
+/********************************************************************/
+ 
+void 
+SymbolTableVisitor::endBold ()
+{
+cout << "\e[0m"; 
+}
+
+/********************************************************************/
+
+void
+SymbolTableVisitor::errorIsInGlobalScope ()
+{
+  startBold ();
+  cout << fileName << ":";
+  endBold ();
+  cout << " In Global Scope" << endl;
+}
+
+/********************************************************************/
+
+void
+SymbolTableVisitor::printLineAndColumnInfo (auto node)
+{
+  startBold ();
+  cout << fileName << ":" << node-> lineNum  << ":" << node-> colNum << ": ";
+  endBold ();
+}
+
+/********************************************************************/
+
+void
+SymbolTableVisitor::errorIsInAFunctionsScope ()
+{
+  string functionType = (currentFunctionType == ValueType::INT) ? "int" : "void";
+  
+  startBold ();
+  cout << fileName << ":" ;
+  endBold ();
+  
+  cout << " In Function "; 
+
+  startBold();
+  cout << "'" << functionType << " " << currentFunctionName << " ()" "'";
+  endBold ();
+  cout << endl;
+}
+
+/********************************************************************/
+
+void
+SymbolTableVisitor::printDeclErrorInfo (auto node, bool ifPrevious, string errorMessage)
+{
+  string type = (node -> valueType == ValueType::INT) ? "int" : "void";
+
+  if (!ifPrevious)
+  {  
+    printLineAndColumnInfo (node);
+   
+    // print error in red text
+    cout <<  "\e[1;31merror: \e[0m";
+    cout <<  errorMessage;
+    
+    startBold ();
+    cout << "'" << type << " " << node -> identifier << "'";
+    endBold ();
+    cout << endl;
+  }
+  else
+  {
+   printLineAndColumnInfo (node);
+
+  //print note in cyan
+  cout <<  "\e[1;36mnote: \e[0m";
+  
+  startBold ();
+  cout << "'" << type << " " << node -> identifier << "'";
+  endBold ();
+
+  cout << errorMessage << endl;
   }
 }
