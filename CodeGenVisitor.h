@@ -1,17 +1,39 @@
 /*
-  Filename   : Visitor.h
+  Filename   : CodeGenVisitor.h
   Author     : Eric Dougherty & Ian Murry
   Course     : CSCI 435
 */
 
 /********************************************************************/
+// C- Visitor Header File
+// Design by CSCI 435: Compilers class
+// Fall 2014
+// Fall 2016
 
-#ifndef SYMBOLTABLEVISITOR_H
-#define SYMBOLTABLEVISITOR_H
+#ifndef CODEGENVISITOR_H
+#define CODEGENVISITOR_H
 
-#include "SymbolTable.h"
+/********************************************************************/
+// System includes
 
-class SymbolTableVisitor : public IVisitor
+#include <fstream>
+
+/********************************************************************/
+// Local Includes
+
+#include "Ast.h"
+#include "AssemblyEmitter.h"
+
+/********************************************************************/
+// Using declarations
+
+using std::ofstream;
+
+/********************************************************************/
+// Abstract Classes
+
+
+class CodeGenVisitor : public IVisitor
 {
 public:
   virtual void visit (ProgramNode* node);
@@ -37,37 +59,9 @@ public:
   virtual void visit (AdditiveExpressionNode* node); 
   virtual void visit (MultiplicativeExpressionNode* node);
   virtual void visit (RelationalExpressionNode* node);
-  virtual void visit (IntegerLiteralExpressionNode* node){};
+  virtual void visit (IntegerLiteralExpressionNode* node); 
 
-  int
-  getLevel();
-
-  void
-  declError(auto node, string errorMessage);
-  
-  void
-  useError(auto node,string errorMessage);
-
-  bool
-  getErrors() ;
-
-  void
-  insert (auto node);
-
-  void
-  lookup (auto node, string ifError);
-
-  int      level;
-
-  string currentFunction;
-
-  SymbolTable table;
-
-  bool     hasErrors;
-
-  std::string fileName;
- 
-  std::string funName;
+  AssemblyEmitter emitter;
 };
 
 #endif

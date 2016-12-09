@@ -15,8 +15,8 @@ INCDIRS  :=
 
 # C++ compiler flags
 # Use the first for debugging, the second for release
-#CXXFLAGS := -g -Wall -std=c++14 $(INCDIRS) 
-CXXFLAGS := -O3 -Wall -std=c++14 $(INCDIRS) 
+CXXFLAGS := -g -Wall -std=c++14 $(INCDIRS) 
+#CXXFLAGS := -O3 -Wall -std=c++14 $(INCDIRS) 
 
 # Linker. For C++ should be $(CXX).
 LINK := $(CXX)
@@ -31,7 +31,7 @@ LDPATHS :=
 LDLIBS :=
 #LDLIBS := -lpthread -lboost_mpi -lboost_serialization
 
-OBJS := CMinusLexer.o CMinusParser.o CMinusDriver.o Ast.o PrintVisitor.o SymbolTable.o SymbolTableVisitor.o
+OBJS := Lexer.o Parser.o Driver.o Ast.o PrintVisitor.o SymbolTable.o SymbolTableVisitor.o CodeGenVisitor.o AssemblyEmitter.o
 
 #############################################################
 # Rules
@@ -40,14 +40,14 @@ OBJS := CMinusLexer.o CMinusParser.o CMinusDriver.o Ast.o PrintVisitor.o SymbolT
 #   	  recipe
 #############################################################
 
-CMinusDriver : $(OBJS)
+Driver : $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o cmin
 
-CMinusLexer.o : CMinusLexer.cc CMinusLexer.h
+Lexer.o : Lexer.cc Lexer.h
 
-CMinusParser.o : CMinusParser.cc CMinusParser.h Ast.h PrintVisitor.h
+Parser.o : Parser.cc Parser.h Ast.h PrintVisitor.h
 
-CMinusDriver.o : CMinusDriver.cc CMinusLexer.h CMinusParser.h
+Driver.o : Driver.cc Parser.h
 
 Ast.o : Ast.cc Ast.h
 
@@ -55,7 +55,11 @@ PrintVisitor.o : PrintVisitor.cc PrintVisitor.h
 
 SymbolTableVisitor.o : SymbolTableVisitor.cc SymbolTableVisitor.h
 
+CodeGenVisitor.o: CodeGenVisitor.cc CodeGenVisitor.h
+
 SymbolTable.o : SymbolTable.cc SymbolTable.h
+
+AssemblyEmitter.o : AssemblyEmitter.cc AssemblyEmitter.h
 
 #############################################################
 # Type "make clean" to delete executables, object files,

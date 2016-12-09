@@ -335,11 +335,11 @@ Parser::var (string id)
 		match (LBRACK, "[", "var");
 		ExpressionNode* expr = expression ();
 		match (RBRACK, "]", "var");
-		varNode = new SubscriptExpressionNode(id, expr);
+		varNode = new SubscriptExpressionNode (id, expr, m_lexer.getLines (), m_lexer.getColumns ());
 	}
 	else
 	{
-		varNode = new VariableExpressionNode(id);
+		varNode = new VariableExpressionNode (id, m_lexer.getLines (), m_lexer.getColumns ());
 	}
 	return varNode;
 }
@@ -497,7 +497,7 @@ Parser::call (string id)
 	match (LPAREN, "(", "call");
 	vector<ExpressionNode*>  argNodeList = args ();
 	match (RPAREN, ")", "call");
-	return new CallExpressionNode(id, argNodeList);
+	return new CallExpressionNode(id, argNodeList, m_lexer.getLines (), m_lexer.getColumns ());
 }
 
 vector<ExpressionNode*> 

@@ -14,84 +14,84 @@
 class SymbolTableVisitor : public IVisitor
 {
 public:
-  //Virtual Functions
-  virtual void visit (ProgramNode* node);
+  	//Virtual Functions
+	virtual void visit (ProgramNode* node);
 
-  virtual void visit (DeclarationNode* node){};
-  virtual void visit (FunctionDeclarationNode* node); 
-  virtual void visit (VariableDeclarationNode* node); 
-  virtual void visit (ArrayDeclarationNode* node); 
-  virtual void visit (ParameterNode* node); 
+	virtual void visit (DeclarationNode* node){};
+	virtual void visit (FunctionDeclarationNode* node); 
+	virtual void visit (VariableDeclarationNode* node); 
+	virtual void visit (ArrayDeclarationNode* node); 
+	virtual void visit (ParameterNode* node); 
 
-  virtual void visit (StatementNode* node){}; 
-  virtual void visit (CompoundStatementNode* node); 
-  virtual void visit (IfStatementNode* node); 
-  virtual void visit (WhileStatementNode* node);
-  virtual void visit (ReturnStatementNode* node); 
-  virtual void visit (ExpressionStatementNode* node); 
+	virtual void visit (StatementNode* node){}; 
+	virtual void visit (CompoundStatementNode* node); 
+	virtual void visit (IfStatementNode* node); 
+	virtual void visit (WhileStatementNode* node);
+	virtual void visit (ReturnStatementNode* node); 
+	virtual void visit (ExpressionStatementNode* node); 
 
-  virtual void visit (ExpressionNode* node){}; 
-  virtual void visit (AssignmentExpressionNode* node); 
-  virtual void visit (VariableExpressionNode* node); 
-  virtual void visit (SubscriptExpressionNode* node); 
-  virtual void visit (CallExpressionNode* node); 
-  virtual void visit (AdditiveExpressionNode* node); 
-  virtual void visit (MultiplicativeExpressionNode* node);
-  virtual void visit (RelationalExpressionNode* node);
-  virtual void visit (IntegerLiteralExpressionNode* node){};
+	virtual void visit (ExpressionNode* node){}; 
+	virtual void visit (AssignmentExpressionNode* node); 
+	virtual void visit (VariableExpressionNode* node); 
+	virtual void visit (SubscriptExpressionNode* node); 
+	virtual void visit (CallExpressionNode* node); 
+	virtual void visit (AdditiveExpressionNode* node); 
+	virtual void visit (MultiplicativeExpressionNode* node);
+	virtual void visit (RelationalExpressionNode* node);
+	virtual void visit (IntegerLiteralExpressionNode* node){};
 
-  // Non-Derived Functions
-  int
-  getLevel();
+  	// Non-Derived Functions
+	int
+	getLevel();
 
-  void
-  declError(auto node, string errorMessage);
-  
-  void
-  useError(auto node,string errorMessage);
+	void
+	declError(auto node, string errorMessage);
 
-  bool
-  getErrors() ;
+	void
+	useError(auto node,string errorMessage);
 
-  void
-  insert (auto node);
+	bool
+	getErrors() ;
 
-  void
-  lookup (auto node, string ifError);
+	void
+	insert (auto node);
 
-  void
-  setUpIOFunctions ();
+	void
+	lookup (auto node, string ifError);
 
-  void
-  startBold ();
+	void
+	setUpIOFunctions ();
 
-  void 
-  endBold ();
+	void
+	startBold ();
 
-  void
-  errorIsInGlobalScope ();
+	void 
+	endBold ();
 
-  void
-  errorIsInAFunctionsScope ();
+	void
+	errorIsInGlobalScope ();
 
-  void
-  printLineAndColumnInfo (auto node);
+	void
+	errorIsInAFunctionsScope ();
 
-  void
-  printDeclErrorInfo (auto node, bool ifPrevious, string errorMessage);
+	void
+	printLineAndColumnInfo (auto node);
 
-  //Non Derived Member Variables
-  int      level;
+	void
+	printDeclErrorInfo (auto node, bool ifPrevious, string errorMessage);
 
-  string currentFunctionName;
-  ValueType currentFunctionType;
+  	//Non Derived Member Variables
+	int      level;
 
-  SymbolTable table;
+	string currentFunctionName;
+	ValueType currentFunctionType;
 
-  bool     hasErrors;
+	SymbolTable table;
 
-  std::string fileName;
- 
+	bool     hasErrors;
+
+	std::string fileName;
+
 
 };
 

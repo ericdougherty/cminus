@@ -68,27 +68,27 @@ struct IntegerLiteralExpressionNode;
 
 enum class AdditiveOperatorType
 {
-  PLUS, MINUS
+	PLUS, MINUS
 };
 
 enum class MultiplicativeOperatorType
 {
-  TIMES, DIVIDE
+	TIMES, DIVIDE
 };
 
 enum class RelationalOperatorType
 {
-  LT, LTE, GT, GTE, EQ, NEQ, ERROR
+	LT, LTE, GT, GTE, EQ, NEQ, ERROR
 };
 
 enum class UnaryOperatorType
 {
-  INCREMENT, DECREMENT
+	INCREMENT, DECREMENT
 };
 
 enum class ValueType
 {
-  VOID, INT, ARRAY
+	VOID, INT, ARRAY
 };
 
 /********************************************************************/
@@ -96,52 +96,52 @@ enum class ValueType
 class IVisitor
 {
 public:
-  virtual void visit (ProgramNode* node) = 0;
+	virtual void visit (ProgramNode* node) = 0;
 
-  virtual void visit (DeclarationNode* node) = 0;
-  virtual void visit (FunctionDeclarationNode* node) = 0;
-  virtual void visit (VariableDeclarationNode* node) = 0;
-  virtual void visit (ArrayDeclarationNode* node) = 0;
-  virtual void visit (ParameterNode* node) = 0;
+	virtual void visit (DeclarationNode* node) = 0;
+	virtual void visit (FunctionDeclarationNode* node) = 0;
+	virtual void visit (VariableDeclarationNode* node) = 0;
+	virtual void visit (ArrayDeclarationNode* node) = 0;
+	virtual void visit (ParameterNode* node) = 0;
 
-  virtual void visit (StatementNode* node) = 0;
-  virtual void visit (CompoundStatementNode* node) = 0;
-  virtual void visit (IfStatementNode* node) = 0;
-  virtual void visit (WhileStatementNode* node) = 0;
-  virtual void visit (ReturnStatementNode* node) = 0;
-  virtual void visit (ExpressionStatementNode* node) = 0;
+	virtual void visit (StatementNode* node) = 0;
+	virtual void visit (CompoundStatementNode* node) = 0;
+	virtual void visit (IfStatementNode* node) = 0;
+	virtual void visit (WhileStatementNode* node) = 0;
+	virtual void visit (ReturnStatementNode* node) = 0;
+	virtual void visit (ExpressionStatementNode* node) = 0;
 
-  virtual void visit (ExpressionNode* node) = 0;
-  virtual void visit (AssignmentExpressionNode* node) = 0;
-  virtual void visit (VariableExpressionNode* node) = 0;
-  virtual void visit (SubscriptExpressionNode* node) = 0;
-  virtual void visit (CallExpressionNode* node) = 0;
-  virtual void visit (AdditiveExpressionNode* node) = 0;
-  virtual void visit (MultiplicativeExpressionNode* node) = 0;
-  virtual void visit (RelationalExpressionNode* node) = 0;
-  virtual void visit (IntegerLiteralExpressionNode* node) = 0;
+	virtual void visit (ExpressionNode* node) = 0;
+	virtual void visit (AssignmentExpressionNode* node) = 0;
+	virtual void visit (VariableExpressionNode* node) = 0;
+	virtual void visit (SubscriptExpressionNode* node) = 0;
+	virtual void visit (CallExpressionNode* node) = 0;
+	virtual void visit (AdditiveExpressionNode* node) = 0;
+	virtual void visit (MultiplicativeExpressionNode* node) = 0;
+	virtual void visit (RelationalExpressionNode* node) = 0;
+	virtual void visit (IntegerLiteralExpressionNode* node) = 0;
 };
 
 /********************************************************************/
 
 struct Node
 {
-  virtual ~Node ();
+	virtual ~Node ();
 
-  virtual void
-  accept (IVisitor* visitor) = 0;
+	virtual void
+	accept (IVisitor* visitor) = 0;
 };
 
 struct ProgramNode : Node
 {
-  ProgramNode ();
+	ProgramNode ();
 
-  ~ProgramNode ();
+	~ProgramNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  vector<DeclarationNode*> declarations;
+	vector<DeclarationNode*> declarations;
 };
 
 /********************************************************************/
@@ -149,73 +149,73 @@ struct ProgramNode : Node
 
 struct DeclarationNode : Node
 {
-  DeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum);
+	DeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum);
 
-  ~DeclarationNode ();
+	~DeclarationNode ();
 
-  virtual void
-  accept (IVisitor* visitor) = 0;
+	virtual void
+	accept (IVisitor* visitor) = 0;
 
-  ValueType valueType;
-  string identifier;
-  size_t lineNum, colNum;
+	ValueType valueType;
+	string identifier;
+	size_t lineNum, colNum;
 
   // Set when the symbol table is built
   // Used for code gen
-  int nestLevel;
+	int nestLevel;
 };
 
 struct FunctionDeclarationNode : DeclarationNode
 {
-  FunctionDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum,
-    vector<ParameterNode*> params = vector<ParameterNode*>(), CompoundStatementNode* body = nullptr);
+	FunctionDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum,
+		vector<ParameterNode*> params = vector<ParameterNode*>(), CompoundStatementNode* body = nullptr);
 
-  ~FunctionDeclarationNode ();
+	~FunctionDeclarationNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  vector<ParameterNode*> parameters;
-  CompoundStatementNode* functionBody;
+	vector<ParameterNode*> parameters;
+	CompoundStatementNode* functionBody;
 };
 
 struct VariableDeclarationNode : DeclarationNode
 {
-  VariableDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum);
+	VariableDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum);
 
-  ~VariableDeclarationNode ();
+	~VariableDeclarationNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
   // Used for code gen
   // Parameters and local variables are stored at addresses
   //   offset from the frame pointer (ebp)
-  int framePointerOffset;
+	int framePointerOffset;
 };
 
 struct ArrayDeclarationNode : VariableDeclarationNode
 {
-  ArrayDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, size_t size);
+	ArrayDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, size_t size);
 
-  ~ArrayDeclarationNode ();
+	~ArrayDeclarationNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  size_t size;
+	size_t size;
 };
 
 struct ParameterNode : DeclarationNode
 {
-  ParameterNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray);
+	ParameterNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray);
 
-  ~ParameterNode ();
+	~ParameterNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  bool isArray;
+	bool isArray;
 };
 
 /********************************************************************/
@@ -223,77 +223,77 @@ struct ParameterNode : DeclarationNode
 
 struct StatementNode : Node
 {
-  ~StatementNode ();
+	~StatementNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 };
 
 struct CompoundStatementNode : StatementNode
 {
-  CompoundStatementNode (vector<VariableDeclarationNode*> declarations,
-                         vector<StatementNode*> stmts);
+	CompoundStatementNode (vector<VariableDeclarationNode*> declarations,
+		vector<StatementNode*> stmts);
 
-  ~CompoundStatementNode ();
+	~CompoundStatementNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  vector<VariableDeclarationNode*> declarations;
-  vector<StatementNode*> statements;
+	vector<VariableDeclarationNode*> declarations;
+	vector<StatementNode*> statements;
 };
 
 struct IfStatementNode : StatementNode
 {
-  IfStatementNode (ExpressionNode* expr,
-                   StatementNode* thenStmt,
-                   StatementNode* elseStmt = nullptr);
+	IfStatementNode (ExpressionNode* expr,
+		StatementNode* thenStmt,
+		StatementNode* elseStmt = nullptr);
 
-  ~IfStatementNode ();
+	~IfStatementNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  ExpressionNode* conditionalExpression;
-  StatementNode* thenStatement;
-  StatementNode* elseStatement;
+	ExpressionNode* conditionalExpression;
+	StatementNode* thenStatement;
+	StatementNode* elseStatement;
 };
 
 struct WhileStatementNode : StatementNode
 {
-  WhileStatementNode (ExpressionNode* expr, StatementNode* stmt);
+	WhileStatementNode (ExpressionNode* expr, StatementNode* stmt);
 
-  ~WhileStatementNode ();
+	~WhileStatementNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  ExpressionNode* conditionalExpression;
-  StatementNode* body;
+	ExpressionNode* conditionalExpression;
+	StatementNode* body;
 };
 
 struct ReturnStatementNode : StatementNode
 {
-  ReturnStatementNode (ExpressionNode* expr = nullptr);
+	ReturnStatementNode (ExpressionNode* expr = nullptr);
 
-  ~ReturnStatementNode ();
+	~ReturnStatementNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  ExpressionNode* expression;
+	ExpressionNode* expression;
 };
 
 struct ExpressionStatementNode : StatementNode
 {
-  ExpressionStatementNode (ExpressionNode* expr);
+	ExpressionStatementNode (ExpressionNode* expr);
 
-  ~ExpressionStatementNode ();
+	~ExpressionStatementNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  ExpressionNode* expression;
+	ExpressionNode* expression;
 };
 
 /********************************************************************/
@@ -301,126 +301,126 @@ struct ExpressionStatementNode : StatementNode
 
 struct ExpressionNode : Node
 {
-  ~ExpressionNode ();
+	~ExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 };
 
 struct AssignmentExpressionNode : ExpressionNode
 {
-  AssignmentExpressionNode (VariableExpressionNode* var,
-                            ExpressionNode* expr);
+	AssignmentExpressionNode (VariableExpressionNode* var,
+		ExpressionNode* expr);
 
-  ~AssignmentExpressionNode ();
+	~AssignmentExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  VariableExpressionNode* variable;
-  ExpressionNode* expression;
+	VariableExpressionNode* variable;
+	ExpressionNode* expression;
 };
 
 struct VariableExpressionNode : ExpressionNode
 {
-  VariableExpressionNode (string id, size_t lineNum, size_t colNum);
+	VariableExpressionNode (string id, size_t lineNum, size_t colNum);
 
-  ~VariableExpressionNode ();
+	~VariableExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  string identifier;
-  DeclarationNode* decl;
-  size_t lineNum, colNum;
+	string identifier;
+	DeclarationNode* decl;
+	size_t lineNum, colNum;
 
 };
 
 struct SubscriptExpressionNode : VariableExpressionNode
 {
-  SubscriptExpressionNode (string id, ExpressionNode* index, size_t lineNum, size_t colNum);
+	SubscriptExpressionNode (string id, ExpressionNode* index, size_t lineNum, size_t colNum);
 
-  ~SubscriptExpressionNode ();
+	~SubscriptExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  ExpressionNode* index;
+	ExpressionNode* index;
 };
 
 struct CallExpressionNode : ExpressionNode
 {
-  CallExpressionNode (string id, vector<ExpressionNode*> args, size_t lineNum, size_t colNum);
+	CallExpressionNode (string id, vector<ExpressionNode*> args, size_t lineNum, size_t colNum);
 
-  ~CallExpressionNode ();
+	~CallExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  string identifier;
-  vector<ExpressionNode*> arguments;
-  DeclarationNode*  decl;
-  size_t lineNum, colNum;
+	string identifier;
+	vector<ExpressionNode*> arguments;
+	DeclarationNode*  decl;
+	size_t lineNum, colNum;
 };
 
 struct AdditiveExpressionNode : ExpressionNode
 {
-  AdditiveExpressionNode (AdditiveOperatorType addop,
-                          ExpressionNode* lhs,
-                          ExpressionNode* rhs);
+	AdditiveExpressionNode (AdditiveOperatorType addop,
+		ExpressionNode* lhs,
+		ExpressionNode* rhs);
 
-  ~AdditiveExpressionNode ();
+	~AdditiveExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  AdditiveOperatorType addOperator;
-  ExpressionNode* left;
-  ExpressionNode* right;
+	AdditiveOperatorType addOperator;
+	ExpressionNode* left;
+	ExpressionNode* right;
 };
 
 struct MultiplicativeExpressionNode : ExpressionNode
 {
-  MultiplicativeExpressionNode (MultiplicativeOperatorType multop,
-                                        ExpressionNode* lhs,
-                                        ExpressionNode* rhs);
+	MultiplicativeExpressionNode (MultiplicativeOperatorType multop,
+		ExpressionNode* lhs,
+		ExpressionNode* rhs);
 
-  ~MultiplicativeExpressionNode ();
+	~MultiplicativeExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  MultiplicativeOperatorType multOperator;
-  ExpressionNode* left;
-  ExpressionNode* right;
+	MultiplicativeOperatorType multOperator;
+	ExpressionNode* left;
+	ExpressionNode* right;
 };
 
 struct RelationalExpressionNode : ExpressionNode
 {
-  RelationalExpressionNode (RelationalOperatorType relop,
-                            ExpressionNode* lhs,
-                            ExpressionNode* rhs);
+	RelationalExpressionNode (RelationalOperatorType relop,
+		ExpressionNode* lhs,
+		ExpressionNode* rhs);
 
-  ~RelationalExpressionNode ();
+	~RelationalExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  RelationalOperatorType relationalOperator;
-  ExpressionNode* left;
-  ExpressionNode* right;
+	RelationalOperatorType relationalOperator;
+	ExpressionNode* left;
+	ExpressionNode* right;
 };
 
 struct IntegerLiteralExpressionNode : ExpressionNode
 {
-  IntegerLiteralExpressionNode (int value);
+	IntegerLiteralExpressionNode (int value);
 
-  ~IntegerLiteralExpressionNode ();
+	~IntegerLiteralExpressionNode ();
 
-  void
-  accept (IVisitor* visitor);
+	void
+	accept (IVisitor* visitor);
 
-  int value;
+	int value;
 };
 
 #endif
