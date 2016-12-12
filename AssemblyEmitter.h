@@ -22,8 +22,8 @@ class AssemblyEmitter
 {
 public:
 
-	AssemblyEmitter (std::ofstream& outFile);
-	~AssemblyEmitter ();
+	AssemblyEmitter (std::ofstream& strm);
+  	~AssemblyEmitter ();
 
 	// Create a new label
 	std::string
@@ -63,10 +63,13 @@ public:
 	void
 	emitOutputFunction ();
 
+	void
+	closeFile();
+
 private:
 
-	std::ofstream& m_outFile;
-	int            m_labelCounter;
+	std::ofstream& 	outFile;
+	int            	labelCounter;
 };
 
 #endif

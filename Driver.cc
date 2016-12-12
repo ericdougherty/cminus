@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cstring>
 
 /************************************************************/
 // Local includes
@@ -27,6 +28,9 @@ int
 main (int argc, char* argv[])
 {
 	string name;
+	string inputFile;
+	string outputFile;
+	string gccCommand;
 	
 	FILE* file;
 	++argv;
@@ -41,6 +45,12 @@ main (int argc, char* argv[])
 			name.pop_back();
 			--i;
 		}
+
+		inputFile = name + "s";
+		outputFile = name;
+		outputFile.pop_back();
+		size_t found = outputFile.rfind("/");
+		outputFile = outputFile.substr(found + 1, outputFile.size());
 	}
 	else
 	{
@@ -52,9 +62,17 @@ main (int argc, char* argv[])
 	{
 		if (p.symbolTable())
 		{
-			cout << "Program is valid!" << endl;
-			cout << "Writing AST to \"" << name << "ast\"" << endl;
-			p.print (name);
+			//cout << "Writing AST to \"" << name << "ast\"" << endl;
+			//p.print (name);
+			p.codeGen(name);
+			
+			gccCommand = "gcc -m32 -o " + outputFile + " " + inputFile;
+			char runGcc [gccCommand.length() + 1];
+			std::strcpy (runGcc, gccCommand.c_str());
+
+			//test remove
+			cout << runGcc << endl;
+			system(runGcc);
 		}
 		
 	}

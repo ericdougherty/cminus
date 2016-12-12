@@ -16,6 +16,8 @@
 #include "Parser.h"
 #include "PrintVisitor.h"
 #include "SymbolTableVisitor.h"
+#include "CodeGenVisitor.h"
+#include "AssemblyEmitter.h"
 
 /********************************************************************/
 // Using declarations
@@ -62,6 +64,19 @@ Parser::symbolTable ()
 	SymbolTableVisitor visitor;
 	ast.accept (&visitor);
 	return !visitor.getErrors();
+}
+
+/********************************************************************/
+
+void
+Parser::codeGen (string name)
+{
+	CodeGenVisitor visitor;
+	visitor.file = ofstream {name + "s"};
+	visitor.filename = name + "s";
+	ast.accept (&visitor);
+	visitor.file.close ();
+	
 }
 
 /********************************************************************/

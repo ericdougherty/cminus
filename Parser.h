@@ -43,6 +43,9 @@ public:
     bool
     symbolTable ();
 
+    void
+    codeGen (string name);
+
 private:    
     void
     declarations (auto parent);
