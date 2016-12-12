@@ -61,7 +61,9 @@ public:
   virtual void visit (RelationalExpressionNode* node);
   virtual void visit (IntegerLiteralExpressionNode* node); 
 
-  AssemblyEmitter emitter;
+  ofstream file;
+  string filename;
+  AssemblyEmitter* emitter;
 };
 
 #endif

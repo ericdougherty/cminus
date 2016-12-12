@@ -45,7 +45,7 @@ Driver : $(OBJS)
 
 Lexer.o : Lexer.cc Lexer.h
 
-Parser.o : Parser.cc Parser.h Ast.h PrintVisitor.h
+Parser.o : Parser.cc Parser.h Ast.h PrintVisitor.h SymbolTableVisitor.h CodeGenVisitor.h
 
 Driver.o : Driver.cc Parser.h
 
