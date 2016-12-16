@@ -42,6 +42,12 @@ public:
 		const std::string& comment = "");
 
 	void
+	emitOperation (const std::string& operation);
+
+	void
+	emitOperands (const std::string& operands, const std::string& comment);
+
+	void
 	emitFunctionDeclaration (const std::string& name);
 
 	// Emit a function prologue that allocates "localVarSpace" on the stack

@@ -111,7 +111,7 @@ Parser::variableDeclaration (ValueType type, string id, auto parent)
 	if (m_token.type == SEMI)
 	{
 		match (SEMI, ";' or '[", "variableDeclaration");
-		varDecl = new VariableDeclarationNode(type, id, m_lexer.getLines (), m_lexer.getColumns ());
+		varDecl = new VariableDeclarationNode(type, id, m_lexer.getLines (), m_lexer.getColumns (), false);
 	}
 	else
 	{
@@ -120,7 +120,7 @@ Parser::variableDeclaration (ValueType type, string id, auto parent)
 		match (NUM, "num", "variableDeclaration");
 		match (RBRACK, "]", "variableDeclaration");
 		match (SEMI, ";", "variableDeclaration");
-		varDecl = new ArrayDeclarationNode(type, id, m_lexer.getLines (), m_lexer.getColumns (), size);
+		varDecl = new ArrayDeclarationNode(type, id, m_lexer.getLines (), m_lexer.getColumns (), true, size );
 	}
 	parent -> declarations.push_back (varDecl);
 }

@@ -43,8 +43,8 @@ DeclarationNode::~DeclarationNode ()
 
 /********************************************************************/
 
-VariableDeclarationNode::VariableDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum)
-:DeclarationNode (t, id, lineNum, colNum)
+VariableDeclarationNode::VariableDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray)
+:DeclarationNode (t, id, lineNum, colNum), isArray (isArray)
 {}
 
 
@@ -79,8 +79,8 @@ FunctionDeclarationNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 
-ArrayDeclarationNode::ArrayDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, size_t size)
-:VariableDeclarationNode (t, id, lineNum, colNum), size (size)
+ArrayDeclarationNode::ArrayDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray, size_t size)
+:VariableDeclarationNode (t, id, lineNum, colNum, isArray), size (size)
 {}
 
 
@@ -95,7 +95,7 @@ ArrayDeclarationNode::accept (IVisitor* visitor)
 
 /********************************************************************/
 ParameterNode::ParameterNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray)
-:DeclarationNode (t, id, lineNum, colNum ), isArray (isArray)
+:VariableDeclarationNode (t, id, lineNum, colNum, isArray)
 {}
 
 

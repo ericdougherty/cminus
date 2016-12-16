@@ -91,6 +91,19 @@ AssemblyEmitter::emitInstruction (const string& operation,
 }
 
 void
+AssemblyEmitter::emitOperation (const string& operation)
+{
+	outFile << setw (INDENT_WIDTH) << " "
+			<< setw (10) << operation;
+}
+
+void
+AssemblyEmitter::emitOperands (const string& operands, const string& comment)
+{
+	outFile << setw (22) << operands << "# " << comment << endl;
+}
+
+void
 AssemblyEmitter::emitFunctionDeclaration (const std::string& name)
 {
 	outFile << ".globl " + name << endl; 
