@@ -1,0 +1,81 @@
+int array[20];
+
+void
+sort (void)
+{
+	int left;
+	int right;
+	int i;
+	int size;
+
+	i = 0;
+	size = 19;
+
+	while (i < 20){
+		left = 0;
+		right = 1;
+		while (left < size){
+			
+			if (array[left] > array[right])
+			{
+				int swap;
+				swap = array[left];
+				array[left] = array[right];
+				array[right] = swap;
+			}
+			else
+			{
+
+			}
+			left = left + 1;
+			right = right + 1;
+		}
+		i = i + 1;	
+	}
+}
+
+int
+main (void)
+{
+	int j;
+
+	array[0] = 2345;
+	array[1] = 45;
+	array[2] = 3;
+	array[3] = 54;
+	array[4] = 88;
+	array[5] = 9;
+	array[6] = 15;
+	array[7] = 20;
+	array[8] = 8;
+	array[9] = 2;
+	array[10] = 76;
+	array[11] = 45;
+	array[12] = 123;
+	array[13] = 875;
+	array[14] = 346;
+	array[15] = 21;
+	array[16] = 22;
+	array[17] = 47;
+	array[18] = 75;
+	array[19] = 25;
+
+	j = 0;
+	while (j < 20) 
+	{
+		output(array[j]);
+		j = j + 1;
+	}
+
+	sort();
+
+	output(1000000);
+
+	j = 0;
+	while (j < 20) 
+	{
+		output(array[j]);
+		j = j + 1;
+	}
+
+}

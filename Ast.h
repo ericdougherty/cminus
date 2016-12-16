@@ -163,6 +163,12 @@ struct DeclarationNode : Node
   // Set when the symbol table is built
   // Used for code gen
 	int nestLevel;
+
+  // Used for code gen
+  // Parameters and local variables are stored at addresses
+  //   offset from the frame pointer (ebp)
+	int framePointerOffset;
+	bool isArray;
 };
 
 struct FunctionDeclarationNode : DeclarationNode
@@ -175,28 +181,27 @@ struct FunctionDeclarationNode : DeclarationNode
 	void
 	accept (IVisitor* visitor);
 
-	vector<ParameterNode*> parameters;
-	CompoundStatementNode* functionBody;
+	vector<ParameterNode*> 	parameters;
+	CompoundStatementNode* 	functionBody;
+	int					localVarCount;
 };
 
 struct VariableDeclarationNode : DeclarationNode
 {
-	VariableDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum);
+	VariableDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray);
 
 	~VariableDeclarationNode ();
 
 	void
 	accept (IVisitor* visitor);
 
-  // Used for code gen
-  // Parameters and local variables are stored at addresses
-  //   offset from the frame pointer (ebp)
-	int framePointerOffset;
+	bool isArray;
+
 };
 
 struct ArrayDeclarationNode : VariableDeclarationNode
 {
-	ArrayDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, size_t size);
+	ArrayDeclarationNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray, size_t size);
 
 	~ArrayDeclarationNode ();
 
@@ -206,7 +211,7 @@ struct ArrayDeclarationNode : VariableDeclarationNode
 	size_t size;
 };
 
-struct ParameterNode : DeclarationNode
+struct ParameterNode : VariableDeclarationNode
 {
 	ParameterNode (ValueType t, string id, size_t lineNum, size_t colNum, bool isArray);
 
@@ -215,7 +220,6 @@ struct ParameterNode : DeclarationNode
 	void
 	accept (IVisitor* visitor);
 
-	bool isArray;
 };
 
 /********************************************************************/
@@ -333,6 +337,7 @@ struct VariableExpressionNode : ExpressionNode
 	string identifier;
 	DeclarationNode* decl;
 	size_t lineNum, colNum;
+	ExpressionNode* index;
 
 };
 
@@ -344,7 +349,6 @@ struct SubscriptExpressionNode : VariableExpressionNode
 
 	void
 	accept (IVisitor* visitor);
-
 	ExpressionNode* index;
 };
 

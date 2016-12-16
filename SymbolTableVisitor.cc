@@ -41,6 +41,7 @@ void
 SymbolTableVisitor::visit (VariableDeclarationNode* node)
 {
 	insert (node);
+	++varCount;
 }
 
 /********************************************************************/
@@ -50,6 +51,7 @@ SymbolTableVisitor::visit (FunctionDeclarationNode* node)
 {
 	insert (node);
 
+	varCount = 0;
 	table.enterScope ();
 	currentFunctionName = node -> identifier;
 	currentFunctionType = node -> valueType;
@@ -59,6 +61,7 @@ SymbolTableVisitor::visit (FunctionDeclarationNode* node)
 		child -> accept (this);
 	}
 	node -> functionBody -> accept (this);
+	node -> localVarCount = varCount;
 	table.exitScope ();
 }
 
@@ -68,6 +71,7 @@ void
 SymbolTableVisitor::visit (ArrayDeclarationNode* node)
 {
 	insert (node);
+	++varCount;
 }
 
 /********************************************************************/

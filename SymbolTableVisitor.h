@@ -81,18 +81,13 @@ public:
 	printDeclErrorInfo (auto node, bool ifPrevious, string errorMessage);
 
   	//Non Derived Member Variables
-	int      level;
-
-	string currentFunctionName;
-	ValueType currentFunctionType;
-
-	SymbolTable table;
-
-	bool     hasErrors;
-
-	std::string fileName;
-
-
+	int      		level;
+	string 			currentFunctionName;
+	ValueType 		currentFunctionType;
+	SymbolTable 	table;
+	bool     		hasErrors;
+	std::string 	fileName;
+	int				varCount;
 };
 
 #endif

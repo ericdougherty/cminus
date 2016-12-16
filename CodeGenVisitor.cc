@@ -51,75 +51,85 @@ CodeGenVisitor::visit (VariableDeclarationNode* node)
 		emitter -> emitInstruction(".comm", node -> identifier + ", 4", "allocating global");
 		emitter -> emitSeparator ();
 	}
+	else
+	{
+		int offset = node -> framePointerOffset;
+		string offsetStr = std::to_string(offset);
+		emitter -> emitInstruction ("movl", "$0, " + offsetStr + "(%ebp)", " localVar load");
+	}
 }
 
 void
 CodeGenVisitor::visit (FunctionDeclarationNode* node)
 {
+	emitter -> emitSeparator ();
+	currentEndLabel = emitter -> createUniqueLabel ();
 	emitter -> emitInstruction(".text", "", "Processing function: " + node -> identifier);
-	emitter -> emitFunctionDeclaration(node -> identifier);
-	emitter -> emitPrologue(node -> parameters.size ());
+	emitter -> emitFunctionDeclaration (node -> identifier);
+	emitter -> emitPrologue (node -> localVarCount);
+
+	int parameterOffset = 4;
+	localVarOffset = 0;
 
 	for (auto child : node -> parameters)
 	{
 		child -> accept (this);
+		child -> framePointerOffset = parameterOffset += 4;
 	}
 
 	node -> functionBody -> accept (this);
-
-	if (node -> parameters.size () > 0)
-	{
-		emitter -> emitInstruction ("subl", "$" + std::to_string(4 * node -> parameters.size ()) + ", %esp", "");
-	}
-
+	emitter -> emitLabel (currentEndLabel, "");
 	emitter -> emitEpilogue();
 }
 
 void
 CodeGenVisitor::visit (ArrayDeclarationNode* node)
 {
-	
+	if (node -> nestLevel == 0)
+	{
+		string arraySize = std::to_string(4 * node -> size);
+
+		emitter -> emitInstruction(".comm", node -> identifier + ", " + arraySize, "allocating global array");
+		emitter -> emitSeparator ();
+	}
 }
 
 void
 CodeGenVisitor::visit (ParameterNode* node)
 {
-
+	
 }
 
 void
 CodeGenVisitor::visit (CompoundStatementNode* node)
 {
-
+	emitter -> emitComment ("Compound Statement");
+	emitter -> emitSeparator ();
+	emitter -> emitComment ("Variable Declarations");
+	emitter -> emitSeparator ();
 	for (auto child : node -> declarations)
 	{
+		child -> framePointerOffset = localVarOffset -= 4;
 		child -> accept (this);
 	}
-	
+
 	for (auto child : node -> statements)
 	{
 		child -> accept (this);
 	}
-
 }
 
 void
 CodeGenVisitor::visit (IfStatementNode* node)
 {
+	emitter -> emitComment ("If Statement");
+	emitter -> emitSeparator ();
 	string elseLabel = emitter -> createUniqueLabel();
 	string endLabel = emitter -> createUniqueLabel();
 
 	node -> conditionalExpression -> accept (this);
 
-	// switch(op)
-	// {
-	// 	case (RelationalOperatorType::GT):
-		emitter -> emitInstruction("jle", elseLabel, "then");
-	// 		break;
-	// 	default:
-	// 		break;
-	// }
-
+	emitter -> emitOperands(elseLabel, "");
 	node -> thenStatement -> accept (this);
 	emitter -> emitInstruction("jmp", endLabel, "then");
 	emitter -> emitLabel(elseLabel, "");
@@ -130,14 +140,25 @@ CodeGenVisitor::visit (IfStatementNode* node)
 void
 CodeGenVisitor::visit (WhileStatementNode* node)
 {
+	emitter -> emitComment ("While Statement");
+	emitter -> emitSeparator ();
+	string testLabel = emitter -> createUniqueLabel();
+	string endLabel = emitter -> createUniqueLabel();
+
+	emitter -> emitLabel(testLabel, "test");
 	node -> conditionalExpression -> accept (this);
+	emitter -> emitOperands(endLabel, "");
 	node -> body -> accept (this);
+	emitter -> emitInstruction("jmp", testLabel, "jump to test");
+
+	emitter -> emitLabel(endLabel, "end while");
 }
 
 void
 CodeGenVisitor::visit (ReturnStatementNode* node)
 {
 	node -> expression -> accept (this);
+	emitter -> emitInstruction("jmp", currentEndLabel, "go to end");
 }
 
 void
@@ -149,23 +170,85 @@ CodeGenVisitor::visit (ExpressionStatementNode* node)
 void
 CodeGenVisitor::visit (AssignmentExpressionNode* node)
 {
+	isArray = false;
 	node -> expression -> accept (this);
-	emitter -> emitInstruction ("movl", "$" + node -> variable -> identifier + ", %eax", "varExp -> eax");
-	emitter -> emitInstruction ("popl", "%ebx", "");
-	emitter -> emitInstruction ("movl", "%ebx, (%eax)", "assignment expression ended");
+	lhs = true;
+	node -> variable -> accept (this);
+
+	//emitter -> emitInstruction ("popl", "%eax", "troublesome pop");
+
+	//emitter -> emitInstruction ("movl", "%eax, (%ecx)", "assignment expression ended");	
+	lhs = false;
 }
 
 void
 CodeGenVisitor::visit (VariableExpressionNode* node)
 {
-	emitter -> emitInstruction ("movl", "$" + node -> identifier +", %eax", "");
-	emitter -> emitInstruction("pushl", "(%eax)", "var exp end");
+	int offset = node -> decl -> framePointerOffset;
+	string offsetStr = std::to_string(offset);
+	if (!lhs)
+	{
+		
+		if (offset > 4)
+		{
+			emitter -> emitInstruction ("movl", offsetStr + "(%ebp), %eax", " parameter load");
+			emitter -> emitInstruction("pushl", "%eax", "param var exp end");
+		}
+		else if (offset < 0)
+		{
+			//emitter -> emitInstruction ("movl", offsetStr + "(%esp), %eax", "local var load");
+			emitter -> emitInstruction("pushl", offsetStr + "(%ebp)", "local var exp end");
+		}
+		else 
+		{
+			emitter -> emitInstruction ("movl", "$" + node -> identifier +", %eax", "global load");
+			emitter -> emitInstruction("pushl", "(%eax)", "global var exp end");
+		}
+	}
+	else
+	{
+		if (offset < 0)
+		{
+			emitter -> emitInstruction ("popl", offsetStr + "(%ebp)", "local var assignment");
+		}
+		else
+		{
+			emitter -> emitInstruction ("movl", "$" + node -> identifier + ", %ecx", "Assignment");
+			emitter -> emitInstruction ("movl", "%eax, (%ecx)", "assignment expression ended");		
+		}
+	}
+	// else
+	// {
+	// 	emitter -> emitInstruction("pushl", "%eax", "lhs var exp end");
+	// }
 }
 
 void
 CodeGenVisitor::visit (SubscriptExpressionNode* node)
 {
-	node -> index -> accept (this);
+	if (lhs)
+	{
+		lhs = false;
+		node -> index -> accept (this);
+		emitter -> emitInstruction ("popl", "%ecx", "");
+		emitter -> emitInstruction ("popl", "%eax", "");
+		emitter -> emitInstruction ("movl", "$" + node -> identifier + ", %edx", "Assignment");
+		emitter -> emitInstruction ("leal", "(%edx, %ecx, 4), %ecx", "");
+		//emitter -> emitInstruction ("pushl", "%ecx", "subscript address");
+		emitter -> emitInstruction ("movl", "%eax, (%ecx)", "assignment expression ended");	
+		isArray = true;
+	}
+	else
+	{
+		node -> index -> accept (this);
+		emitter -> emitInstruction ("popl", "%ecx", "");
+		emitter -> emitInstruction ("movl", "$" + node -> identifier +", %edx", "");
+		emitter -> emitInstruction ("movl", "(%edx, %ecx, 4), %eax", "");
+		// Commented out at end of night to get rid of double push
+		emitter -> emitInstruction ("pushl", "%eax", "sub var exp end");
+		isArray = false;
+	}
+
 }
 
 void
@@ -176,8 +259,13 @@ CodeGenVisitor::visit (CallExpressionNode* node)
 		child -> accept (this);
 	}
 	emitter -> emitInstruction("call ", node -> identifier, "" );
-	emitter -> emitInstruction("pushl", "%eax", "call expression ended");
-
+	emitter -> emitInstruction ("pushl", "%eax", "");
+	
+	/*for (auto child : node -> arguments)
+	{
+		emitter -> emitInstruction ("popl", "%ecx", "");
+	}*/
+	
 }
 
 void
@@ -230,13 +318,30 @@ CodeGenVisitor::visit (RelationalExpressionNode* node)
 	RelationalOperatorType opType = node -> relationalOperator; 
 
 	//	LT, LTE, GT, GTE, EQ, NEQ, ERROR
-	if(opType != RelationalOperatorType::EQ && opType != RelationalOperatorType::NEQ)
+	emitter -> emitInstruction("cmpl", "%ecx, %eax", "reop cmp");
+
+	switch(opType)
 	{
-		emitter -> emitInstruction("cmpl", "%ecx, %eax", "reop cmp");
-	}
-	else
-	{
-		emitter -> emitInstruction("testl", "%ecx, %eax", "reop EQ or NEQ");
+		case (RelationalOperatorType::GT):
+		emitter -> emitOperation("jle");
+		break;
+		case (RelationalOperatorType::GTE):
+		emitter -> emitOperation("jl");
+		break;
+		case (RelationalOperatorType::LT):
+		emitter -> emitOperation("jge");
+		break;
+		case (RelationalOperatorType::LTE):
+		emitter -> emitOperation("jg");
+		break;
+		case (RelationalOperatorType::EQ):
+		emitter -> emitOperation("jne");
+		break;
+		case (RelationalOperatorType::NEQ):
+		emitter -> emitOperation("je");
+		break;
+		default:
+		break;
 	}
 }
 

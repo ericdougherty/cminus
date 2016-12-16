@@ -61,9 +61,13 @@ public:
   virtual void visit (RelationalExpressionNode* node);
   virtual void visit (IntegerLiteralExpressionNode* node); 
 
-  ofstream file;
-  string filename;
-  AssemblyEmitter* emitter;
+  ofstream 			file;
+  string 			filename;
+  AssemblyEmitter* 	emitter;
+  string 			currentEndLabel;
+  int 				localVarOffset;
+  bool				lhs;
+  bool				isArray;
 };
 
 #endif

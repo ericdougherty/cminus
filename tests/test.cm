@@ -1,0 +1,76 @@
+int x;
+int y[10];
+int z;
+int c;
+
+int
+add (int a, int b)
+{
+	return a + b;
+}
+
+int
+mult (int x, int y)
+{
+	return x * y;
+}
+
+int
+main (void)
+{
+	int f;
+	int g;
+	g = 5;
+	output(g);
+	output(f);
+	/*
+	broken
+	if (mult(4, 3) < 90)
+	{
+		output(0);
+	}
+	else
+	{
+		output(1);
+	}
+	*/
+	output(add(mult(4, 6), 6));
+	y[3] = 5;
+	x = y[3];
+	output(x);
+	z = add (12, 4);
+	output(z);
+
+	y[0] = 4;
+	y[3] = 2;
+	y[x] = 9;
+	y[9] = 3453;
+
+	output(y[0]);
+	output(y[3]);
+	output(y[x]);
+	output(y[9]);
+
+	while (c < z)
+	{
+		output (add (c, 5));
+		c = c + 1;
+		z = z - 1;
+	}
+
+	c = 10;
+	x = 0;
+	while (x < 10)
+	{
+		c = c + 1;
+		y[x] = c;
+		x = x + 1;
+	}
+
+	x = 0;
+	while (x < 10)
+	{
+		output(y[x]);
+		x = x + 1;
+	}
+}
