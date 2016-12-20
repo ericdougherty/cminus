@@ -49,8 +49,6 @@ main (int argc, char* argv[])
 		inputFile = name + "s";
 		outputFile = name;
 		outputFile.pop_back();
-		size_t found = outputFile.rfind("/");
-		outputFile = outputFile.substr(found + 1, outputFile.size());
 	}
 	else
 	{
@@ -60,18 +58,18 @@ main (int argc, char* argv[])
 	Parser p(file);
 	if (p.parse())
 	{
+		cout << "Program is valid!" << endl;
 		if (p.symbolTable())
 		{
-			//cout << "Writing AST to \"" << name << "ast\"" << endl;
-			//p.print (name);
+			cout << "Writing AST to \"" << name << "ast\"" << endl;
+			p.print (name);
 			p.codeGen(name);
 			
 			gccCommand = "gcc -m32 -o " + outputFile + " " + inputFile;
 			char runGcc [gccCommand.length() + 1];
 			std::strcpy (runGcc, gccCommand.c_str());
 
-			//test remove
-			cout << runGcc << endl;
+			cout << "Writing executable to \"" << outputFile << "\""<< endl;
 			system(runGcc);
 		}
 		

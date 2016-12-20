@@ -1,6 +1,10 @@
-// Symbol Table Header File
-// CSCI 435: Compilers class
-// Fall 2016
+/*
+  Filename   : SymbolTable.cc
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
+  
+ /********************************************************************/
 
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
