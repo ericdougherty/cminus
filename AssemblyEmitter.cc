@@ -1,3 +1,9 @@
+/*
+  Filename   : AssemblyEmitter.cc
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
+
 /********************************************************************/
 // Assembly Emitter
 //   Utility class to write assembly instructions to a file
@@ -46,9 +52,6 @@ AssemblyEmitter::AssemblyEmitter (std::ofstream &strm)
 /********************************************************************/
 AssemblyEmitter::~AssemblyEmitter ()
 {}
-
-
-// ...
 
 /********************************************************************/
 // Utilities
@@ -110,7 +113,6 @@ AssemblyEmitter::emitFunctionDeclaration (const std::string& name)
 	outFile << name + ":" << endl;
 }
 
-// Emit a function prologue that allocates "localVarSpace" on the stack
 void
 AssemblyEmitter::emitPrologue (int localVarSpace)
 {
@@ -123,8 +125,6 @@ AssemblyEmitter::emitPrologue (int localVarSpace)
 		
 }
 
-// Emit a function epilogue that restores the stack and base pointers,
-//   and returns
 void
 AssemblyEmitter::emitEpilogue ()
 {

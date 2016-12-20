@@ -1,10 +1,11 @@
-//
-//  SymbolTable.cpp
-//  SymbolTable
-//
-//  Created by Ian Murry on 11/27/16.
-//
-//
+/*
+  Filename   : SymbolTable.cc
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
+
+/********************************************************************/
+
 #include <iostream>
 
 #include "SymbolTable.h"

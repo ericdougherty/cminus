@@ -1,3 +1,9 @@
+/*
+  Filename   : AssemblyEmitter.h
+  Author     : Eric Dougherty & Ian Murry
+  Course     : CSCI 435
+*/
+
 /********************************************************************/
 // Assembly Emitter
 //   Utility class to write assembly instructions to a file
@@ -50,12 +56,9 @@ public:
 	void
 	emitFunctionDeclaration (const std::string& name);
 
-	// Emit a function prologue that allocates "localVarSpace" on the stack
 	void
 	emitPrologue (int localVarSpace);
 
-	// Emit a function epilogue that restores the stack and base pointers,
-	//   and returns
 	void
 	emitEpilogue ();
 
